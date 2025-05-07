@@ -1,0 +1,6 @@
+
+
+
+interface AuthState {
+    token: string;
+}
