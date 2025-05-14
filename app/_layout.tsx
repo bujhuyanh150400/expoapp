@@ -10,12 +10,13 @@ import FlashMessage from 'react-native-flash-message';
 import * as SplashScreen from 'expo-splash-screen';
 import './global.css'
 export { ErrorBoundary } from 'expo-router';
+import { defaultConfig } from '@tamagui/config/v4' // for quick config install this
+import { createTamagui,TamaguiProvider, View } from 'tamagui'
 
 export const unstable_settings = {
-    initialRouteName: 'login',
+    initialRouteName: '(auth)',
 };
-
-
+const config = createTamagui(defaultConfig)
 export default function RootLayout() {
 //     useEffect(() => {
 //         loadSelectedTheme();
@@ -31,7 +32,7 @@ export default function RootLayout() {
     return (
       <LayoutProvider>
         <Stack>
-          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(app)" options={{ headerShown: false }} />
         </Stack>
       </LayoutProvider>
@@ -39,8 +40,6 @@ export default function RootLayout() {
 }
 
 function LayoutProvider({ children }: { children: ReactNode }) {
-
-  const theme = useThemeConfig();
   /**
    * react-native-gesture-handler - xử lý cử chỉ mượt hơn
    * react-native-keyboard-controller - tăng cường khả năng kiểm soát bàn phím
@@ -51,16 +50,16 @@ function LayoutProvider({ children }: { children: ReactNode }) {
   return (
     <GestureHandlerRootView
         style={styles.container}
-        className={theme.dark ? `dark` : undefined}
+        // className={theme.dark ? `dark` : undefined}
     >
-        <ThemeProvider value={theme}>
+        <TamaguiProvider config={config}>
           <APIProvider>
             <BottomSheetModalProvider>
               {children}
               <FlashMessage position="top" />
             </BottomSheetModalProvider>
           </APIProvider>
-        </ThemeProvider>
+        </TamaguiProvider>
     </GestureHandlerRootView>
   );
 }
