@@ -4,19 +4,17 @@ import {loadSelectedTheme, useThemeConfig} from "@/lib/hooks/use-selected-theme"
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { StyleSheet } from 'react-native';
 import {ThemeProvider} from "@react-navigation/core";
-import {APIProvider} from "@/api/common";
+import {APIProvider} from "@/api/ApiProvider";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import FlashMessage from 'react-native-flash-message';
 import * as SplashScreen from 'expo-splash-screen';
 import './global.css'
 export { ErrorBoundary } from 'expo-router';
 import { defaultConfig } from '@tamagui/config/v4' // for quick config install this
-import { createTamagui,TamaguiProvider, View } from 'tamagui'
+import { createTamagui,TamaguiProvider } from 'tamagui'
 
-export const unstable_settings = {
-    initialRouteName: '(auth)',
-};
 const config = createTamagui(defaultConfig)
+
 export default function RootLayout() {
 //     useEffect(() => {
 //         loadSelectedTheme();
@@ -32,8 +30,9 @@ export default function RootLayout() {
     return (
       <LayoutProvider>
         <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
         </Stack>
       </LayoutProvider>
   )

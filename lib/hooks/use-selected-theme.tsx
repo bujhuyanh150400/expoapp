@@ -9,7 +9,7 @@ import {
 
 import colors from '@/components/ui/color';
 import {useAsyncStorageString} from "@/lib/hooks/useAsyncStorageString";
-import {getItem} from "@/lib/storage";
+import storage from "@/lib/storage";
 
 export type ColorSchemeType = 'light' | 'dark' | 'system';
 
@@ -60,7 +60,7 @@ export const useSelectedTheme = () => {
 };
 
 export const loadSelectedTheme = async () => {
-    const theme = await getItem<ColorSchemeType>(SELECTED_THEME);
+    const theme = await storage.getItem<ColorSchemeType>(SELECTED_THEME);
     if (theme) {
         colorScheme.set(theme);
     }

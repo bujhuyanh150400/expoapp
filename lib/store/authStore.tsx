@@ -1,41 +1,41 @@
-import { create } from 'zustand';
-import {_AuthStatus} from "@/lib/constant";
-import {getItem, removeItem, setItem} from "@/lib/storage";
-import {AUTH_TOKEN, SELECTED_THEME} from "@/lib/storage/key";
+import {create} from 'zustand';
+import storage from "@/lib/storage";
+import {AUTH_TOKEN} from "@/lib/storage/key";
+import {_AuthStatus} from "@/lib/@type";
+import {AuthTokenType} from "@/api/auth/type";
 
-export type TokenType = {
-    access: string;
-    refresh: string;
-};
 
 interface AuthState {
-    token: TokenType | null;
+    token: AuthTokenType | null;
     status: _AuthStatus;
-    signIn: (data: TokenType) => void;
-    signOut: () => void;
-    hydrate: () => void;
+    setToken: (data: AuthTokenType) => Promise<void>;
+    removeToken: () => Promise<void>;
+    hydrate: () => Promise<void>;
 }
 
-const _useAuth = create<AuthState>((set, get) => ({
-    status: _AuthStatus.AUTHORIZED,
+const useAuthStore = create<AuthState>((set, get) => ({
+    status: _AuthStatus.UNAUTHORIZED,
     token: null,
-    signIn: async (token) => {
-        await setItem<TokenType>(AUTH_TOKEN,token)
+    setToken: async (token) => {
+        await storage.setItem<AuthTokenType>(AUTH_TOKEN,token)
         set({ status: _AuthStatus.AUTHORIZED, token });
     },
-    signOut: async () => {
-        await removeItem(AUTH_TOKEN)
+    removeToken: async () => {
+        await storage.removeItem(AUTH_TOKEN)
         set({ status: _AuthStatus.UNAUTHORIZED, token: null });
     },
     hydrate: async () => {
         try {
-            const token = await getItem<TokenType>(AUTH_TOKEN)
+            const token = await storage.getItem<AuthTokenType>(AUTH_TOKEN)
             if (token) {
-                set({ token });
+                set({ token, status: _AuthStatus.AUTHORIZED });
             } else {
-                set({ status: _AuthStatus.UNAUTHORIZED });
+                set({ status: _AuthStatus.UNAUTHORIZED, token: null });
             }
         } catch (e) {
+            console.log(e)
         }
     },
 }));
+
+export default useAuthStore

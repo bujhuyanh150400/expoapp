@@ -1,4 +1,3 @@
-export enum _AuthStatus {
-    AUTHORIZED = 'authorized',
-    UNAUTHORIZED = 'unauthorized',
-}
+export const APP_NAME = 'ZENTRIX'
+
+export const BACKEND_API_URL = 'https://dummyjson.com'

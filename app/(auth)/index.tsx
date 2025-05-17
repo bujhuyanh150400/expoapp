@@ -3,11 +3,11 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useRouter} from "expo-router";
 import {XStack, YStack, Button} from 'tamagui'
 import AntDesign from '@expo/vector-icons/AntDesign';
+import {APP_NAME} from "@/lib/constant";
 
 
 export default function OnboardScreen() {
     const router = useRouter();
-    console.log('OnboardScreen')
     return (
         <SafeAreaView className="flex-1 items-center justify-center flex-col">
             <View className="mb-32 flex flex-row items-center justify-center">
@@ -20,7 +20,7 @@ export default function OnboardScreen() {
                     resizeMode="contain"
                 />
                 <Text className="font-extrabold text-5xl">
-                    ZENTRIX
+                    {APP_NAME}
                 </Text>
             </View>
             <XStack paddingHorizontal="$8" alignSelf="center" gap="$2">
