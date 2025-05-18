@@ -6,11 +6,14 @@ import React from "react";
 export default function AppLayout() {
     return (
         <Tabs
-
+            initialRouteName="index"
+            screenOptions={{headerShown: false}}
         >
             <Tabs.Screen
                 name="index"
-
+                options={{
+                    title: 'Feed',
+                }}
             />
         </Tabs>
     )
