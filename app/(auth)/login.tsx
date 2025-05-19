@@ -30,11 +30,6 @@ export default function LoginScreen() {
         mutationFn: (data: LoginRequest) => authAPI.login(data),
         onSuccess: async (data) => {
             await login(data)
-            showMessage({
-                message: "Bạn đã đăng nhập thành công, chào mừng bạn quay lại",
-                type: 'success',
-                duration: 3000,
-            })
             router.replace('/(app)')
         },
         onError: (error) => {

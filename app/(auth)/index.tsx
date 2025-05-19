@@ -30,7 +30,7 @@ export default function OnboardScreen() {
                     padding="$2"
                 >
                     <Button onPress={() => router.push('/(auth)/register')} theme="accent">Đăng ký</Button>
-                    <Button onPress={() => router.push('/(auth)/login')}>Đăng nhập</Button>
+                    <Button onPress={() => router.push('/(auth)/enterPin')}>Đăng nhập</Button>
                 </YStack>
             </XStack>
             <XStack alignItems="center" justifyContent="center" marginVertical={15} paddingHorizontal="$8">

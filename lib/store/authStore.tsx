@@ -1,8 +1,8 @@
 import {create} from 'zustand';
-import storage from "@/lib/storage";
-import {AUTH_TOKEN} from "@/lib/storage/key";
+import {SECURE_AUTH_TOKEN} from "@/lib/storage/key";
 import {_AuthStatus} from "@/lib/@type";
 import {LoginResponse} from "@/api/auth/type";
+import secureStore from "@/lib/storage/secure";
 
 
 interface AuthState {
@@ -17,16 +17,16 @@ const useAuthStore = create<AuthState>((set, get) => ({
     status: _AuthStatus.UNAUTHORIZED,
     auth_data: null,
     login: async (data) => {
-        await storage.setItem<LoginResponse>(AUTH_TOKEN, data)
+        await secureStore.setItem<LoginResponse>(SECURE_AUTH_TOKEN, data)
         set({status: _AuthStatus.AUTHORIZED, auth_data: data});
     },
     logout: async () => {
-        await storage.removeItem(AUTH_TOKEN)
+        await secureStore.removeItem(SECURE_AUTH_TOKEN)
         set({status: _AuthStatus.UNAUTHORIZED, auth_data: null});
     },
     hydrate: async () => {
         try {
-            const data = await storage.getItem<LoginResponse>(AUTH_TOKEN)
+            const data = await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN)
             if (data) {
                 set({status: _AuthStatus.AUTHORIZED, auth_data: data});
             } else {

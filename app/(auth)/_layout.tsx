@@ -14,6 +14,7 @@ export default function AuthLayout() {
                 <Stack.Screen name="register" options={{headerShown: false}}/>
                 <Stack.Screen name="registerSuccess" options={{headerShown: false}}/>
                 <Stack.Screen name="forgotPassword" options={{headerShown: false}}/>
+                <Stack.Screen name="enterPin" options={{headerShown: false}}/>
             </Stack>
         </SafeAreaProvider>
     )
