@@ -2,7 +2,7 @@ import {KeyboardAvoidingView, Platform, SafeAreaView} from 'react-native'
 import {Controller, useForm} from 'react-hook-form'
 import {yupResolver} from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import React, {useState} from 'react'
+import {useCallback, useState} from 'react'
 import {Button, Form, H6, Input, Label, YStack, XStack, Spinner } from 'tamagui'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {LoginRequest} from "@/api/auth/type";
@@ -10,13 +10,13 @@ import useAuthStore from "@/lib/store/authStore";
 import {useMutation} from "@tanstack/react-query";
 import authAPI from '@/api/auth'
 import {useRouter} from "expo-router";
+import ErrorAPIServer from "@/api/commonType";
+import {showMessage} from "react-native-flash-message";
 
 export default function LoginScreen() {
-    console.log('LoginScreen')
-
     const router = useRouter();
 
-    const {control, handleSubmit, formState: {errors, isSubmitting}} = useForm<LoginRequest>({
+    const {control, handleSubmit, formState: {errors, isSubmitting}, setError} = useForm<LoginRequest>({
         resolver: yupResolver(yup.object({
             email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
             password: yup.string().min(8, 'Mật khẩu ít nhất 8 ký tự').required('Mật khẩu là bắt buộc'),
@@ -24,26 +24,44 @@ export default function LoginScreen() {
     })
     const [showPassword, setShowPassword] = useState(false);
 
-
-    const {setToken} = useAuthStore((store) => store)
+    const {login} = useAuthStore()
 
     const { mutate, isPending } =  useMutation({
         mutationFn: (data: LoginRequest) => authAPI.login(data),
         onSuccess: async (data) => {
-            await setToken({
-                accessToken: data.accessToken,
-                refreshToken: data.refreshToken
+            await login(data)
+            showMessage({
+                message: "Bạn đã đăng nhập thành công, chào mừng bạn quay lại",
+                type: 'success',
+                duration: 3000,
             })
             router.replace('/(app)')
         },
         onError: (error) => {
-            console.log(error)
+            if (error instanceof ErrorAPIServer){
+                if (error.validateError){
+                    const validationErrors = error.validateError;
+                    Object.entries(validationErrors).forEach(([field, messages]) => {
+                        setError(field as keyof LoginRequest, {
+                            type: 'validate',
+                            message: messages[0],
+                        });
+                    });
+                }
+                else if (error.message){
+                    showMessage({
+                        message: error.message,
+                        type: 'danger',
+                        duration: 3000,
+                    })
+                }
+            }
         }
     })
 
-    const onSubmit = (data: LoginRequest) => {
+    const onSubmit = useCallback((data: LoginRequest) => {
         mutate(data);
-    }
+    },[])
 
     return (
         <>
@@ -56,7 +74,6 @@ export default function LoginScreen() {
                     <Form gap="$4" padding="$8" onSubmit={handleSubmit(onSubmit)}>
                         <YStack gap="$2">
                             <H6>Vui lòng điền địa chỉ email và mật khẩu</H6>
-
                             <Label htmlFor="email">Email của bạn</Label>
                             <Controller
                                 control={control}
@@ -120,16 +137,24 @@ export default function LoginScreen() {
                                     {errors.password.message}
                                 </Label>
                             )}
-
+                        </YStack>
+                        <YStack gap="$2">
                             <Button
                                 onPress={handleSubmit(onSubmit)}
                                 disabled={isSubmitting}
                                 theme="active"
                                 size="$4"
-                                marginTop="$4"
-                                icon={isSubmitting ? <Spinner/> : undefined}
+                                icon={isSubmitting || isPending ? <Spinner/> : undefined}
                             >
                                 {isSubmitting || isPending ? 'Đang gửi...' : 'Đăng nhập'}
+                            </Button>
+                            <Button
+                                onPress={() => router.push('/(auth)/forgotPassword')}
+                                disabled={isSubmitting}
+                                size="$4"
+                                variant="outlined"
+                            >
+                                {'Quên mật khẩu'}
                             </Button>
                         </YStack>
                     </Form>

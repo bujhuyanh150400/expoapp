@@ -2,6 +2,7 @@ import {BACKEND_API_URL} from "@/lib/constant";
 import axios from "axios";
 import storage from "@/lib/storage";
 import {AUTH_TOKEN} from "@/lib/storage/key";
+import ErrorAPIServer, {_HTTPStatus, ILaravelValidationErrors} from "@/api/commonType";
 
 export const client = axios.create({
     baseURL: BACKEND_API_URL,
@@ -29,16 +30,41 @@ client.interceptors.request.use(
 
 // Add a response interceptor
 client.interceptors.response.use(
-    (response) => {
-        // Handle successful response
-        return response;
-    },
+    (response) => response,
     (error) => {
-        // Handle response errors
-        if (error.response?.status === 401) {
-            // Handle unauthorized error (e.g., redirect to login)
-            console.error("Unauthorized! Redirecting to login...");
+        const errorResponse = error.response;
+        const errorData = error.response?.data;
+        //Nếu có lỗi trả ra từ server
+        if (errorResponse && errorData) {
+            let messageError: string | null | undefined = errorData.message;
+            let statusCodeResponse: number | null | undefined = errorResponse?.status;
+
+            if (!messageError) messageError = "Đã xảy ra lỗi, vui lòng liên hệ quản trị viên để được hỗ trợ.";
+            if (!statusCodeResponse) statusCodeResponse = 0;
+            if (statusCodeResponse === _HTTPStatus.VALIDATE_FAILED_REQUEST) {
+                const errorValidate: ILaravelValidationErrors = errorData.errors;
+                return Promise.reject(new ErrorAPIServer(statusCodeResponse, messageError, errorResponse, errorValidate));
+            } else {
+                return Promise.reject(new ErrorAPIServer(statusCodeResponse, messageError, errorResponse));
+            }
+        } else if (error.request) {
+            return Promise.reject(
+                new ErrorAPIServer(
+                    _HTTPStatus.BAD_REQUEST,
+                    'Không nhận được phản hồi từ máy chủ, vui lòng liên hệ quản trị viên để được hỗ trợ',
+                    errorResponse
+                )
+            );
+        } else {
+            return Promise.reject(
+                new ErrorAPIServer(
+                    _HTTPStatus.INTERNAL_SERVER_ERROR,
+                    'Đã xảy ra lỗi, vui lòng liên hệ quản trị viên để được hỗ trợ.',
+                    errorResponse
+                )
+            );
         }
-        return Promise.reject(error);
     }
 );
+
+

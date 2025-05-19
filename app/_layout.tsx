@@ -12,20 +12,9 @@ import './global.css'
 export { ErrorBoundary } from 'expo-router';
 import { defaultConfig } from '@tamagui/config/v4' // for quick config install this
 import { createTamagui,TamaguiProvider } from 'tamagui'
-
 const config = createTamagui(defaultConfig)
 
 export default function RootLayout() {
-//     useEffect(() => {
-//         loadSelectedTheme();
-// // Prevent the splash screen from auto-hiding before asset loading is complete.
-//         SplashScreen.preventAutoHideAsync();
-// // Set the animation options. This is optional.
-//         SplashScreen.setOptions({
-//             duration: 500,
-//             fade: true,
-//         });
-//     }, []);
 
     return (
       <LayoutProvider>

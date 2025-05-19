@@ -29,7 +29,7 @@ export default function OnboardScreen() {
                     gap="$2"
                     padding="$2"
                 >
-                    <Button theme="accent">Đăng ký</Button>
+                    <Button onPress={() => router.push('/(auth)/register')} theme="accent">Đăng ký</Button>
                     <Button onPress={() => router.push('/(auth)/login')}>Đăng nhập</Button>
                 </YStack>
             </XStack>
