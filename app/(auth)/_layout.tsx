@@ -1,12 +1,21 @@
-import {Stack} from "expo-router";
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {Stack, useRouter} from "expo-router";
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {FocusAwareStatusBar} from "@/components/FocusAwareStatusBar";
-import React from "react";
+import React, {useEffect} from "react";
+import {_AuthStatus} from "@/lib/@type";
+import useAuthStore from "@/lib/store/authStore";
 
 
 export default function AuthLayout() {
+    const {status} = useAuthStore();
+    const router = useRouter();
+    useEffect(() => {
+        if (status === _AuthStatus.AUTHORIZED) {
+            router.replace('/(app)')
+        }
+    }, [status]);
     return (
-        <SafeAreaProvider >
+        <SafeAreaProvider>
             <FocusAwareStatusBar/>
             <Stack>
                 <Stack.Screen name="index" options={{headerShown: false}}/>
@@ -15,6 +24,7 @@ export default function AuthLayout() {
                 <Stack.Screen name="registerSuccess" options={{headerShown: false}}/>
                 <Stack.Screen name="forgotPassword" options={{headerShown: false}}/>
                 <Stack.Screen name="enterPin" options={{headerShown: false}}/>
+                <Stack.Screen name="verify" options={{headerShown: false}}/>
             </Stack>
         </SafeAreaProvider>
     )

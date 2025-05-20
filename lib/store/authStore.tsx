@@ -1,41 +1,73 @@
 import {create} from 'zustand';
-import {SECURE_AUTH_TOKEN} from "@/lib/storage/key";
+import {SECURE_AUTH_TOKEN, SECURE_PIN_CODE} from "@/lib/storage/key";
 import {_AuthStatus} from "@/lib/@type";
 import {LoginResponse} from "@/api/auth/type";
 import secureStore from "@/lib/storage/secure";
 
 
 interface AuthState {
-    auth_data: LoginResponse | null;
     status: _AuthStatus;
-    login: (data: LoginResponse) => Promise<void>;
+    auth_data: LoginResponse | null;
+    pin_code: string | null;
+    setAuthData: (data: LoginResponse) => void;
+    login: (data: string) => Promise<void>;
     logout: () => Promise<void>;
     hydrate: () => Promise<void>;
+    verify: () => void;
 }
 
 const useAuthStore = create<AuthState>((set, get) => ({
+    /**
+     * State
+     */
     status: _AuthStatus.UNAUTHORIZED,
     auth_data: null,
-    login: async (data) => {
-        await secureStore.setItem<LoginResponse>(SECURE_AUTH_TOKEN, data)
-        set({status: _AuthStatus.AUTHORIZED, auth_data: data});
+    pin_code: null,
+    /**
+     * Method
+     */
+    setAuthData: (data: LoginResponse) => {
+        set({auth_data: data});
+    },
+    login: async  (pinData) => {
+        const {auth_data} = get();
+        if (!auth_data) {
+            throw new Error('Login data is not set');
+        }
+        await secureStore.setItem<string>(SECURE_PIN_CODE,pinData);
+        await secureStore.setItem<LoginResponse>(SECURE_AUTH_TOKEN, auth_data)
+        set({status: _AuthStatus.AUTHORIZED, auth_data: auth_data});
     },
     logout: async () => {
+        await secureStore.removeItem(SECURE_PIN_CODE)
         await secureStore.removeItem(SECURE_AUTH_TOKEN)
-        set({status: _AuthStatus.UNAUTHORIZED, auth_data: null});
+        set({
+            status: _AuthStatus.UNAUTHORIZED,
+            auth_data: null,
+            pin_code: null
+        });
     },
     hydrate: async () => {
-        try {
-            const data = await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN)
-            if (data) {
-                set({status: _AuthStatus.AUTHORIZED, auth_data: data});
-            } else {
-                set({status: _AuthStatus.UNAUTHORIZED, auth_data: null});
-            }
-        } catch (e) {
-            console.error(e)
+        const authData =await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN);
+        const pinData =await secureStore.getItem<string>(SECURE_PIN_CODE);
+
+        if (authData && pinData) {
+            set({
+                status: _AuthStatus.NEED_ACCESS_PIN,
+                auth_data: authData,
+                pin_code: pinData
+            });
+        } else {
+            set({
+                status: _AuthStatus.UNAUTHORIZED,
+                auth_data: null,
+                pin_code: null
+            });
         }
     },
+    verify: () => {
+        set({status: _AuthStatus.AUTHORIZED})
+    }
 }));
 
 export default useAuthStore

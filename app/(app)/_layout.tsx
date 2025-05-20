@@ -1,7 +1,21 @@
-import {Tabs} from 'expo-router';
+import {Tabs, useRouter} from 'expo-router';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import useAuthStore from "@/lib/store/authStore";
+import {useEffect} from "react";
+import {_AuthStatus} from "@/lib/@type";
 
 export default function AppLayout() {
+    const {status} = useAuthStore();
+    const router = useRouter();
+    useEffect(() => {
+        if (status === _AuthStatus.UNAUTHORIZED) {
+            router.replace('/(auth)')
+        }
+        if (status === _AuthStatus.NEED_ACCESS_PIN) {
+            router.replace('/(auth)/verify')
+        }
+    }, [status]);
+
     return (
         <Tabs
             initialRouteName="trade"
@@ -30,6 +44,14 @@ export default function AppLayout() {
         }}
         >
             <Tabs.Screen
+                name="index"
+                options={{
+                    title: 'Tài khoản',
+                    tabBarIcon: (props) =>
+                        <FontAwesome6 name="wallet" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
+                }}
+            />
+            <Tabs.Screen
                 name="trade"
                 options={{
                     title: 'Giao dịch',
@@ -43,14 +65,6 @@ export default function AppLayout() {
                     title: 'Thị trường',
                     tabBarIcon: (props) =>
                         <FontAwesome6 name="globe" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
-                }}
-            />
-            <Tabs.Screen
-                name="index"
-                options={{
-                    title: 'Tài khoản',
-                    tabBarIcon: (props) =>
-                        <FontAwesome6 name="wallet" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
                 }}
             />
             <Tabs.Screen
