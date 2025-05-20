@@ -29,11 +29,23 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# Environment files
+.env
+.env.*
+!.env.example
 
-# typescript
-*.tsbuildinfo
+# Expo
+.expo-shared/
 
-app-example
-.idea
+# Build
+build/
+*.log
+
+# Android/iOS cache
+android/
+ios/
+
+# Other
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
