@@ -36,3 +36,21 @@ export type RegisterRequest = {
 export type ForgotPasswordRequest = {
     email: string;
 }
+
+/**
+ * Verify code
+ */
+export type VerifyCodeRequest = {
+    email: string;
+    code: string;
+}
+
+/**
+ * Reset password
+ */
+export type ResetPasswordRequest= {
+    email: string,
+    code: string,
+    password: string,
+    password_confirmation: string
+}

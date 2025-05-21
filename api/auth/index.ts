@@ -1,4 +1,11 @@
-import {ForgotPasswordRequest, LoginRequest, LoginResponse, RegisterRequest} from "@/api/auth/type";
+import {
+    ForgotPasswordRequest,
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    VerifyCodeRequest,
+    ResetPasswordRequest
+} from "@/api/auth/type";
 import {client} from "@/api/client";
 import {ResponseSuccessType} from "@/api/commonType";
 
@@ -13,6 +20,14 @@ const authAPI = {
     },
     forgotPassword: async (data: ForgotPasswordRequest): Promise<ResponseSuccessType> => {
         const response = await client.post('/auth/forgot-password', data);
+        return response.data;
+    },
+    verifyCode: async (data: VerifyCodeRequest): Promise<ResponseSuccessType> => {
+        const response = await client.post('/auth/verify-code', data);
+        return response.data;
+    },
+    resetPassword: async (data: ResetPasswordRequest): Promise<ResponseSuccessType> => {
+        const response = await client.post('/auth/reset-password', data);
         return response.data;
     }
 }

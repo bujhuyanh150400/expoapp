@@ -20,9 +20,9 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import * as LocalAuthentication from "expo-local-authentication";
 import useAuthStore from "@/lib/store/authStore";
 import {showMessage} from "react-native-flash-message";
-import {useFocusEffect, useNavigation, useRouter} from "expo-router";
+import {useRouter} from "expo-router";
 import useCheckBiometrics from "@/lib/hooks/useCheckBiometrics";
-import {StackActions} from "@react-navigation/native";
+import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
 
 const styles = StyleSheet.create({
     root: {flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center'},
@@ -48,15 +48,8 @@ export default function EnterPinScreen() {
     const router = useRouter();
 
     // chặn hành vi vuốt về
-    const navigation = useNavigation();
-    useFocusEffect(
-        useCallback(() => {
-            navigation.setOptions({ gestureEnabled: false });
-            return () => {
-                navigation.setOptions({ gestureEnabled: true });
-            };
-        }, [])
-    );
+    useDisableBackGesture();
+
 
     const [pin, setPin] = useState<string>('');
     const [acceptPin, setAcceptPin] = useState<boolean>(false);

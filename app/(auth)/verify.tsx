@@ -1,14 +1,14 @@
 import {KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, View} from "react-native";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field";
 import {CELL_PIN_INPUT} from "@/lib/constant";
-import {useFocusEffect, useNavigation, useRouter} from "expo-router";
+import {useRouter} from "expo-router";
 import useAuthStore from "@/lib/store/authStore";
-import {_AuthStatus} from "@/lib/@type";
-import {Paragraph, Circle, H6, YStack} from "tamagui";
+import { Circle, H6, YStack} from "tamagui";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {TextInput as RNTextInput} from "react-native/Libraries/Components/TextInput/TextInput";
 import {showMessage} from "react-native-flash-message";
+import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
 
 const styles = StyleSheet.create({
     root: {flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center'},
@@ -31,23 +31,11 @@ const styles = StyleSheet.create({
 });
 
 export default function VerifyScreen() {
+    useDisableBackGesture();
+
     const router = useRouter();
 
-    // chặn hành vi vuốt về
-    const navigation = useNavigation();
-    useFocusEffect(
-        useCallback(() => {
-            navigation.setOptions({ gestureEnabled: false });
-            return () => {
-                navigation.setOptions({ gestureEnabled: true });
-            };
-        }, [])
-    );
-
-
     const [pin, setPin] = useState<string>('');
-    const [error, setError] = useState<string>('');
-    const [errorCount, setErrorCount] = useState<number>(0);
 
     const {verify, pin_code} = useAuthStore();
 
@@ -69,11 +57,9 @@ export default function VerifyScreen() {
                     icon: "danger",
                     duration: 2000,
                 });
-                setPin('');
             }
         }
     }, [pin, pin_code]);
-
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#fff"}}>
@@ -114,9 +100,6 @@ export default function VerifyScreen() {
                                 </Text>
                             )}
                         />
-                        <Paragraph size="$2" fontWeight="800" color="$red10">
-                            {error}
-                        </Paragraph>
                     </YStack>
                 </View>
             </KeyboardAvoidingView>

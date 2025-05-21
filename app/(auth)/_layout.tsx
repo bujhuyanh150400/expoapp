@@ -22,9 +22,13 @@ export default function AuthLayout() {
                 <Stack.Screen name="login" options={{headerShown: false}}/>
                 <Stack.Screen name="register" options={{headerShown: false}}/>
                 <Stack.Screen name="registerSuccess" options={{headerShown: false}}/>
-                <Stack.Screen name="forgotPassword" options={{headerShown: false}}/>
                 <Stack.Screen name="enterPin" options={{headerShown: false}}/>
                 <Stack.Screen name="verify" options={{headerShown: false}}/>
+
+                <Stack.Screen name="forgotPassword" options={{headerShown: false}}/>
+                <Stack.Screen name="verifyCodeForgotPass" options={{headerShown: false}}/>
+                <Stack.Screen name="resetPassword" options={{headerShown: false}}/>
+                <Stack.Screen name="resetPasswordSuccess" options={{headerShown: false}}/>
             </Stack>
         </SafeAreaProvider>
     )

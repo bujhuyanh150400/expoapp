@@ -16,7 +16,7 @@ import useApiErrorHandler from "@/lib/hooks/useApiErrorHandler";
 export default function LoginScreen() {
     const router = useRouter();
 
-    const {control, handleSubmit, formState: {errors, isSubmitting}, setError} = useForm<LoginRequest>({
+    const {control, handleSubmit, formState: {errors, isSubmitting}, setError, reset} = useForm<LoginRequest>({
         resolver: yupResolver(yup.object({
             email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
             password: yup.string().min(8, 'Mật khẩu ít nhất 8 ký tự').required('Mật khẩu là bắt buộc'),
@@ -31,7 +31,8 @@ export default function LoginScreen() {
     const { mutate, isPending } =  useMutation({
         mutationFn: (data: LoginRequest) => authAPI.login(data),
         onSuccess: async (data) => {
-            setAuthData(data)
+            setAuthData(data);
+            reset();
             router.replace('/(auth)/enterPin')
         },
         onError: (error) => {
@@ -52,7 +53,7 @@ export default function LoginScreen() {
                     keyboardVerticalOffset={64}
                 >
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                        <Form gap="$4" padding="$8" onSubmit={handleSubmit(onSubmit)}>
+                        <Form gap="$4" padding="$6" onSubmit={handleSubmit(onSubmit)}>
                             <YStack gap="$2">
                                 <H6 fontWeight="bold">Vui lòng điền địa chỉ email và mật khẩu</H6>
                                 <Label htmlFor="email">Email của bạn</Label>
@@ -94,6 +95,7 @@ export default function LoginScreen() {
                                                 flex={1}
                                                 placeholder="Mật khẩu"
                                                 value={value}
+                                                borderWidth={0}
                                                 onChangeText={onChange}
                                                 onBlur={onBlur}
                                                 secureTextEntry={!showPassword}

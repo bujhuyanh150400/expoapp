@@ -5,7 +5,7 @@ import {LoginResponse} from "@/api/auth/type";
 import secureStore from "@/lib/storage/secure";
 
 
-interface AuthState {
+interface IAuthState {
     status: _AuthStatus;
     auth_data: LoginResponse | null;
     pin_code: string | null;
@@ -16,7 +16,7 @@ interface AuthState {
     verify: () => void;
 }
 
-const useAuthStore = create<AuthState>((set, get) => ({
+const useAuthStore = create<IAuthState>((set, get) => ({
     /**
      * State
      */

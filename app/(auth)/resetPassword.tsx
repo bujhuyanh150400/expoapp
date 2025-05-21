@@ -1,134 +1,92 @@
-import {Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, TouchableWithoutFeedback} from 'react-native'
-import {Controller, useForm} from 'react-hook-form'
-import {yupResolver} from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import {useCallback, useState} from 'react'
-import {Button, Form, H6, Input, Label, YStack, XStack, Spinner} from 'tamagui'
-import {RegisterRequest} from "@/api/auth/type";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import authAPI from "@/api/auth";
+import {Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, TouchableWithoutFeedback} from "react-native";
+import {Button, Form, H6, Input, Label, Spinner, XStack, YStack} from "tamagui";
+import {Controller, useForm} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import {useCallback, useState} from "react";
+import {ResetPasswordRequest} from "@/api/auth/type";
 import {useMutation} from "@tanstack/react-query";
+import authAPI from "@/api/auth";
 import {useRouter} from "expo-router";
 import useApiErrorHandler from "@/lib/hooks/useApiErrorHandler";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
+import useForgotPassStore from "@/lib/store/forgotPassStorage";
 
-type FormRegister = RegisterRequest & {
-    confirm_password: string
-}
 
-export default function RegisterScreen() {
-    const router = useRouter()
+type ResetPasswordFormType = Pick<ResetPasswordRequest, 'password' | 'password_confirmation'>
+
+export default function ResetPasswordScreen() {
+    useDisableBackGesture();
+
+    const router = useRouter();
+
+    const handleErrorApi = useApiErrorHandler<ResetPasswordRequest>();
+
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-    const {control, handleSubmit, formState: {errors, isSubmitting}, setError, reset} = useForm<FormRegister>({
+
+    const {control, handleSubmit, formState: {errors, isSubmitting}, setError, reset} = useForm<ResetPasswordFormType>({
         resolver: yupResolver(
             yup.object({
-                name: yup.string().required('Tên là bắt buộc'),
-                email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
                 password: yup.string().min(8, 'Mật khẩu ít nhất 8 ký tự').required('Mật khẩu là bắt buộc'),
-                confirm_password: yup.string()
+                password_confirmation: yup.string()
                     .oneOf([yup.ref('password')], 'Mật khẩu xác nhận không khớp')
                     .required('Xác nhận mật khẩu là bắt buộc'),
             })
         ),
     })
-    const handleErrorApi = useApiErrorHandler<RegisterRequest>();
+    const {code, email, setEmpty} = useForgotPassStore()
 
     const {mutate, isPending} = useMutation({
-        mutationFn: (data: RegisterRequest) => authAPI.register(data),
+        mutationFn: (data: ResetPasswordRequest) => authAPI.resetPassword(data),
         onSuccess: async () => {
             reset();
-            router.replace('/(auth)/registerSuccess')
+            setEmpty();
+            router.replace('/(auth)/resetPasswordSuccess')
         },
         onError: (error) => {
-            console.error(error)
             handleErrorApi({error, setError});
         }
     })
-    const onSubmit = useCallback((data: FormRegister) => {
-        const request = {
-            name: data.name,
-            email: data.email,
-            password: data.password,
-        }
-        mutate(request);
-    }, []);
 
+    const onSubmit = useCallback((data: ResetPasswordFormType) => {
+        if (email && code) {
+            const form = {...data, email, code}
+            mutate(form);
+        }
+    }, [email, code]);
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: "#fff"}}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{flex: 1}}
-                keyboardVerticalOffset={24}
+                keyboardVerticalOffset={64}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Form gap="$4" padding="$6" onSubmit={handleSubmit(onSubmit)}>
                         <YStack gap="$4">
-                            <H6 fontWeight="bold">Vui lòng điền thông tin đăng ký tài khoản</H6>
-                            <Controller
-                                control={control}
-                                name="name"
-                                render={({field: {onChange, onBlur, value}}) => (
-                                    <YStack gap="$2">
-                                        <Input
-                                            id="name"
-                                            placeholder="Tên của bạn"
-                                            value={value}
-                                            onChangeText={onChange}
-                                            onBlur={onBlur}
-                                            keyboardType="default"
-                                            autoCapitalize="none"
-                                            borderColor={!!errors.name ? 'red' : '$borderColor'}
-                                        />
-                                        {!!errors.name && (
-                                            <Label color="red" size="$2">
-                                                {errors.name.message}
-                                            </Label>
-                                        )}
-                                    </YStack>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="email"
-                                render={({field: {onChange, onBlur, value}}) => (
-                                    <YStack gap="$2">
-                                        <Input
-                                            id="email_register"
-                                            placeholder="Email của bạn"
-                                            value={value}
-                                            onChangeText={onChange}
-                                            onBlur={onBlur}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
-                                            borderColor={!!errors.email ? 'red' : '$borderColor'}
-                                        />
-                                        {!!errors.email && (
-                                            <Label color="red" size="$2">
-                                                {errors.email.message}
-                                            </Label>
-                                        )}
-                                    </YStack>
-                                )}
-                            />
-
+                            <H6 fontWeight="bold">Vui lòng điền mật khẩu mới</H6>
                             <Controller
                                 control={control}
                                 name="password"
                                 render={({field: {onChange, onBlur, value}}) => (
                                     <YStack gap="$2">
+                                        <Label htmlFor="password">Mật khẩu mới</Label>
                                         <XStack
+                                            backgroundColor="white"
                                             alignItems="center"
                                             borderRadius="$4"
                                             borderWidth={1}
                                             borderColor={!!errors.password ? 'red' : '$borderColor'}
                                         >
                                             <Input
+                                                backgroundColor="white"
+                                                borderWidth={0}
                                                 id="password"
                                                 flex={1}
                                                 placeholder="Mật khẩu"
                                                 value={value}
-                                                borderWidth={0}
                                                 onChangeText={onChange}
                                                 onBlur={onBlur}
                                                 secureTextEntry={!showPassword}
@@ -157,18 +115,21 @@ export default function RegisterScreen() {
 
                             <Controller
                                 control={control}
-                                name="confirm_password"
+                                name="password_confirmation"
                                 render={({field: {onChange, onBlur, value}}) => (
                                     <YStack gap="$2">
+                                        <Label htmlFor="password_confirmation">Xác nhận lại mật khẩu</Label>
                                         <XStack
                                             alignItems="center"
                                             borderRadius="$4"
                                             borderWidth={1}
-                                            borderColor={!!errors.confirm_password ? 'red' : '$borderColor'}
+                                            backgroundColor="white"
+                                            borderColor={!!errors.password ? 'red' : '$borderColor'}
                                         >
                                             <Input
-                                                id="password_register"
+                                                id="password_confirmation"
                                                 flex={1}
+                                                backgroundColor="white"
                                                 borderWidth={0}
                                                 placeholder="Xác nhận mật khẩu"
                                                 value={value}
@@ -189,9 +150,9 @@ export default function RegisterScreen() {
                                                 )}
                                             </XStack>
                                         </XStack>
-                                        {!!errors.confirm_password && (
+                                        {!!errors.password_confirmation && (
                                             <Label color="red" size="$2">
-                                                {errors.confirm_password.message}
+                                                {errors.password_confirmation.message}
                                             </Label>
                                         )}
                                     </YStack>
@@ -200,16 +161,15 @@ export default function RegisterScreen() {
 
                             <Button
                                 onPress={handleSubmit(onSubmit)}
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || isPending}
                                 theme="active"
                                 size="$4"
-                                marginTop="$4"
+                                marginTop={40}
                                 icon={isSubmitting || isPending ? <Spinner/> : undefined}
                             >
-                                {isSubmitting || isPending ? 'Đang gửi...' : 'Đăng ký'}
+                                {isSubmitting || isPending ? 'Đang gửi...' : 'Xác nhận'}
                             </Button>
                         </YStack>
-
                     </Form>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
