@@ -14,6 +14,7 @@ interface IAuthState {
     logout: () => Promise<void>;
     hydrate: () => Promise<void>;
     verify: () => void;
+    unVerify: () => void;
 }
 
 const useAuthStore = create<IAuthState>((set, get) => ({
@@ -65,8 +66,12 @@ const useAuthStore = create<IAuthState>((set, get) => ({
             });
         }
     },
+
     verify: () => {
         set({status: _AuthStatus.AUTHORIZED})
+    },
+    unVerify : () => {
+        set({status: _AuthStatus.NEED_ACCESS_PIN})
     }
 }));
 

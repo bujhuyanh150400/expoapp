@@ -1,14 +1,16 @@
 import {KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, View} from "react-native";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-native-confirmation-code-field";
 import {CELL_PIN_INPUT} from "@/lib/constant";
-import {useRouter} from "expo-router";
+import {useFocusEffect, useRouter} from "expo-router";
 import useAuthStore from "@/lib/store/authStore";
 import { Circle, H6, YStack} from "tamagui";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {TextInput as RNTextInput} from "react-native/Libraries/Components/TextInput/TextInput";
 import {showMessage} from "react-native-flash-message";
 import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
+import useCheckBiometrics from "@/lib/hooks/useCheckBiometrics";
+import * as LocalAuthentication from "expo-local-authentication";
 
 const styles = StyleSheet.create({
     root: {flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center'},
@@ -31,6 +33,7 @@ const styles = StyleSheet.create({
 });
 
 export default function VerifyScreen() {
+
     useDisableBackGesture();
 
     const router = useRouter();
@@ -39,11 +42,42 @@ export default function VerifyScreen() {
 
     const {verify, pin_code} = useAuthStore();
 
+    const hasBiometrics = useCheckBiometrics();
+
     const ref = useBlurOnFulfill({value: pin, cellCount: CELL_PIN_INPUT});
+
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value: pin,
         setValue: setPin,
     });
+
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+            const authenticate = async () => {
+                try {
+                    const result = await LocalAuthentication.authenticateAsync({
+                        promptMessage: hasBiometrics
+                            ? "Dùng vân tay hoặc nhận diện khuôn mặt để xác thực"
+                            : "Nhập mã PIN của bạn",
+                        fallbackLabel: "Dùng mật khẩu PIN",
+                        cancelLabel: "Hủy bỏ",
+                        disableDeviceFallback: false,
+                    });
+                    if (result.success && isActive) {
+                        verify();
+                        router.replace('/(app)');
+                    }
+                } catch (err) {
+                    console.warn("Biometric error", err);
+                }
+            };
+            authenticate().then();
+            return () => {
+                isActive = false;
+            };
+        }, [hasBiometrics])
+    );
 
     useEffect(() => {
         if (pin.length === CELL_PIN_INPUT) {

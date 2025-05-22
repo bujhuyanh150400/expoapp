@@ -4,44 +4,23 @@ import {useCallback, useEffect, useRef} from "react";
 import {APP_NAME} from "@/lib/constant";
 import useAuthStore from "@/lib/store/authStore";
 import {_AuthStatus} from "@/lib/@type";
-import useCheckBiometrics from "@/lib/hooks/useCheckBiometrics";
-import * as LocalAuthentication from "expo-local-authentication";
 
 export default function SplashedScreen() {
     const router = useRouter();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.5)).current;
-    const hasBiometrics = useCheckBiometrics();
 
-    const {hydrate, verify} = useAuthStore();
+    const {hydrate} = useAuthStore();
 
     const checkLogin = useCallback(async () => {
         await hydrate()
         const freshStatus = useAuthStore.getState().status
         if (freshStatus === _AuthStatus.NEED_ACCESS_PIN) {
-            try {
-                const auth = await LocalAuthentication.authenticateAsync({
-                    promptMessage:
-                        hasBiometrics
-                            ? "Dùng vân tay hoặc nhận diện khuôn mặt để xác thực"
-                            : "Nhập mã PIN của bạn",
-                    fallbackLabel: "Dùng mật khẩu PIN",
-                    cancelLabel: "Hủy bỏ",
-                    disableDeviceFallback: false,
-                });
-                if (auth.success) {
-                    verify();
-                    router.replace('/(app)');
-                } else {
-                    router.replace('/(auth)/verify')
-                }
-            }catch (err){
-                router.replace('/(auth)/verify')
-            }
+            router.replace('/(auth)/verify')
         } else {
             router.replace('/(auth)') // Nếu chưa login
         }
-    }, [hasBiometrics]);
+    }, []);
 
     useEffect(() => {
         // animate the fade-in and scale-up effect

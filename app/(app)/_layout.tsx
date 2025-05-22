@@ -3,16 +3,19 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import useAuthStore from "@/lib/store/authStore";
 import {useEffect} from "react";
 import {_AuthStatus} from "@/lib/@type";
+import useAppInactive from "@/lib/hooks/useAppInactive";
 
 export default function AppLayout() {
-    const {status} = useAuthStore();
+    const {status, unVerify} = useAuthStore();
     const router = useRouter();
+    useAppInactive(() => {
+        unVerify();
+        router.replace('/(auth)/verify');
+    });
+
     useEffect(() => {
         if (status === _AuthStatus.UNAUTHORIZED) {
             router.replace('/(auth)')
-        }
-        if (status === _AuthStatus.NEED_ACCESS_PIN) {
-            router.replace('/(auth)/verify')
         }
     }, [status]);
 
@@ -68,7 +71,7 @@ export default function AppLayout() {
                 }}
             />
             <Tabs.Screen
-                name="info"
+                name="(info)"
                 options={{
                     title: 'Hồ sơ',
                     tabBarIcon: (props) =>
