@@ -21,7 +21,7 @@ export default function AppLayout() {
 
     return (
         <Tabs
-            initialRouteName="trade"
+            initialRouteName="index"
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: '#000',
@@ -55,7 +55,7 @@ export default function AppLayout() {
                 }}
             />
             <Tabs.Screen
-                name="trade"
+                name="(trade)"
                 options={{
                     title: 'Giao dịch',
                     tabBarIcon: (props) =>

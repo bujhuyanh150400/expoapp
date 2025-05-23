@@ -1,7 +1,7 @@
-import {View, Text} from "react-native";
+import {Text, View} from "react-native";
 
 
-export default function TradeScreen() {
+export default function TradeLayout() {
     return (
         <View className="flex-1 items-center justify-center">
             <Text className="text-blue-400"> Transaction </Text>
