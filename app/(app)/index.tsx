@@ -9,6 +9,7 @@ import {
 } from 'tamagui';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AnimatedTabsLayout, {TabItem} from "@/components/AnimatedTabsLayout";
+import SheetAddWallet from "@/components/pages/app/home/SheetAddWallet";
 
 const tabs: TabItem[] = [
     {
@@ -37,6 +38,9 @@ const tabs: TabItem[] = [
     },
 ]
 export default function HomeScreen() {
+
+    const [openSheetAddWallet, setOpenSheetAddWallet] = React.useState(false);
+
     return (
         <LayoutScrollApp title="Tài khoản">
             <Card elevate size="$4" bordered backgroundColor="white" marginBottom={15}>
@@ -45,13 +49,16 @@ export default function HomeScreen() {
                     <Paragraph theme="alt2">Mở tài khoản mới hoặc restore 1 tài khoản</Paragraph>
                 </Card.Header>
                 <Card.Footer alignItems="center" justifyContent="center" gap="$2" padded>
-                    <Button borderRadius="100%" icon={<FontAwesome6 name="add" size={10} color="black" />}/>
-                    <Button borderRadius="100%">
-                        <FontAwesome6 name="box-archive" size={10} color="black" />
-                    </Button>
+                    <Button
+                        borderRadius="100%"
+                            icon={<FontAwesome6 name="add" size={10} color="black" />}
+                        onPress ={() => setOpenSheetAddWallet(true)}
+                    />
+                    <Button borderRadius="100%" icon={<FontAwesome6 name="box-archive" size={10} color="black" />}/>
                 </Card.Footer>
             </Card>
             <AnimatedTabsLayout tabs={tabs} initialTab="open" />
+            <SheetAddWallet open={openSheetAddWallet} setOpen={setOpenSheetAddWallet} />
         </LayoutScrollApp>
     );
 }
