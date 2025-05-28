@@ -6,3 +6,12 @@ export enum _AuthStatus {
     AUTHORIZED = 'authorized',
     UNAUTHORIZED = 'unauthorized',
 }
+
+
+/**
+ * Account types
+ */
+export enum _AccountType {
+    TEST_ACCOUNT = 0,
+    REAL_ACCOUNT = 1,
+}

@@ -9,7 +9,7 @@ import authAPI from "@/api/auth";
 import {useCallback} from "react";
 import useApiErrorHandler from "@/lib/hooks/useApiErrorHandler";
 import {useRouter} from "expo-router";
-import useForgotPassStore from "@/lib/store/forgotPassStorage";
+import useForgotPassStore from "@/lib/store/forgotPassStore";
 
 
 export default function ForgotPasswordScreen() {

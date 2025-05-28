@@ -29,6 +29,10 @@ const authAPI = {
     resetPassword: async (data: ResetPasswordRequest): Promise<ResponseSuccessType> => {
         const response = await client.post('/auth/reset-password', data);
         return response.data;
+    },
+    userProfile: async () : Promise<ResponseSuccessType> => {
+        const response = await client.get('/auth/user-profile');
+        return response.data;
     }
 }
 

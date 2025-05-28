@@ -9,7 +9,7 @@ import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
 import {useMutation} from "@tanstack/react-query";
 import {VerifyCodeRequest} from "@/api/auth/type";
 import authAPI from "@/api/auth";
-import useForgotPassStore from "@/lib/store/forgotPassStorage";
+import useForgotPassStore from "@/lib/store/forgotPassStore";
 import ErrorAPIServer from "@/api/commonType";
 import {showMessage} from "react-native-flash-message";
 

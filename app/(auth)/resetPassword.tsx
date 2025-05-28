@@ -11,7 +11,7 @@ import {useRouter} from "expo-router";
 import useApiErrorHandler from "@/lib/hooks/useApiErrorHandler";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
-import useForgotPassStore from "@/lib/store/forgotPassStorage";
+import useForgotPassStore from "@/lib/store/forgotPassStore";
 
 
 type ResetPasswordFormType = Pick<ResetPasswordRequest, 'password' | 'password_confirmation'>

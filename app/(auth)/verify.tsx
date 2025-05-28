@@ -4,13 +4,15 @@ import {CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell} from "react-na
 import {CELL_PIN_INPUT} from "@/lib/constant";
 import {useFocusEffect, useRouter} from "expo-router";
 import useAuthStore from "@/lib/store/authStore";
-import { Circle, H6, YStack} from "tamagui";
+import {Circle, H6, Spinner, YStack} from "tamagui";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {TextInput as RNTextInput} from "react-native/Libraries/Components/TextInput/TextInput";
 import {showMessage} from "react-native-flash-message";
 import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
 import useCheckBiometrics from "@/lib/hooks/useCheckBiometrics";
 import * as LocalAuthentication from "expo-local-authentication";
+import {useQuery} from "@tanstack/react-query";
+import authAPI from "@/api/auth";
 
 const styles = StyleSheet.create({
     root: {flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center'},
@@ -40,7 +42,7 @@ export default function VerifyScreen() {
 
     const [pin, setPin] = useState<string>('');
 
-    const {verify, pin_code} = useAuthStore();
+    const {verify, pin_code, logout} = useAuthStore();
 
     const hasBiometrics = useCheckBiometrics();
 
@@ -65,8 +67,7 @@ export default function VerifyScreen() {
                         disableDeviceFallback: false,
                     });
                     if (result.success && isActive) {
-                        verify();
-                        router.replace('/(app)');
+                        checkVerify();
                     }
                 } catch (err) {
                     console.warn("Biometric error", err);
@@ -82,8 +83,7 @@ export default function VerifyScreen() {
     useEffect(() => {
         if (pin.length === CELL_PIN_INPUT) {
             if (pin === pin_code) {
-                verify();
-                router.replace('/(app)')
+                checkVerify();
             } else {
                 showMessage({
                     message: "Mã PIN không chính xác",
@@ -94,6 +94,32 @@ export default function VerifyScreen() {
             }
         }
     }, [pin, pin_code]);
+
+    const {refetch, isLoading, isSuccess, isError} = useQuery({
+        queryKey: ['authAPI_userProfile'],
+        queryFn: authAPI.userProfile,
+        enabled: false,
+    })
+
+    useEffect(() => {
+        if (isSuccess){
+            verify();
+            router.replace('/(app)/(account)');
+        }else if(isError){
+            logout();
+            router.replace('/(auth)');
+            showMessage({
+                message: "Thông tin xác thực của bạn hiện không đúng, vui lòng đăng nhập lại",
+                type: "danger",
+                icon: "danger",
+                duration: 2000,
+            });
+        }
+    }, [isSuccess, isError]);
+
+    const checkVerify = useCallback(() => {
+        refetch();
+    }, []);
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#fff"}}>
@@ -109,31 +135,32 @@ export default function VerifyScreen() {
                                 <AntDesign name="lock" size={40} color="#b5b5b5"/>
                             </Circle>
                         </Circle>
-                        <H6 style={{
-                            fontWeight: 'bold',
-                        }}>Xin hãy nhập mã PIN</H6>
-                        <CodeField
-                            ref={ref as React.RefObject<RNTextInput>}
-                            {...props}
-                            autoFocus={true}
-                            InputComponent={RNTextInput}
-                            caretHidden={true}
-                            value={pin}
-                            onChangeText={setPin}
-                            cellCount={CELL_PIN_INPUT}
-                            rootStyle={styles.codeFieldRoot}
-                            keyboardType="number-pad"
-                            textContentType="oneTimeCode"
-                            autoComplete="one-time-code"
-                            renderCell={({index, symbol, isFocused}) => (
-                                <Text
-                                    key={index}
-                                    style={[styles.cell, isFocused && styles.focusCell]}
-                                    onLayout={getCellOnLayoutHandler(index)}>
-                                    {symbol ? "." : isFocused ? <Cursor/> : null}
-                                </Text>
-                            )}
-                        />
+                        <H6 style={{fontWeight: 'bold'}}>Xin hãy nhập mã PIN</H6>
+                        {isLoading
+                            ? <Spinner size="large" color="$blue10"/>
+                            : <CodeField
+                                ref={ref as React.RefObject<RNTextInput>}
+                                {...props}
+                                autoFocus={true}
+                                InputComponent={RNTextInput}
+                                caretHidden={true}
+                                value={pin}
+                                onChangeText={setPin}
+                                cellCount={CELL_PIN_INPUT}
+                                rootStyle={styles.codeFieldRoot}
+                                keyboardType="number-pad"
+                                textContentType="oneTimeCode"
+                                autoComplete="one-time-code"
+                                renderCell={({index, symbol, isFocused}) => (
+                                    <Text
+                                        key={index}
+                                        style={[styles.cell, isFocused && styles.focusCell]}
+                                        onLayout={getCellOnLayoutHandler(index)}>
+                                        {symbol ? "." : isFocused ? <Cursor/> : null}
+                                    </Text>
+                                )}
+                            />
+                        }
                     </YStack>
                 </View>
             </KeyboardAvoidingView>

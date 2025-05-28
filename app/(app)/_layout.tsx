@@ -6,12 +6,9 @@ import {_AuthStatus} from "@/lib/@type";
 import useAppInactive from "@/lib/hooks/useAppInactive";
 
 export default function AppLayout() {
-    const {status, unVerify} = useAuthStore();
+    const {status} = useAuthStore();
+
     const router = useRouter();
-    useAppInactive(() => {
-        unVerify();
-        router.replace('/(auth)/verify');
-    });
 
     useEffect(() => {
         if (status === _AuthStatus.UNAUTHORIZED) {
@@ -21,7 +18,7 @@ export default function AppLayout() {
 
     return (
         <Tabs
-            initialRouteName="index"
+            initialRouteName="(account)"
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: '#000',
@@ -47,7 +44,7 @@ export default function AppLayout() {
         }}
         >
             <Tabs.Screen
-                name="index"
+                name="(account)"
                 options={{
                     title: 'Tài khoản',
                     tabBarIcon: (props) =>

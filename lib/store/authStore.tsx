@@ -51,7 +51,6 @@ const useAuthStore = create<IAuthState>((set, get) => ({
     hydrate: async () => {
         const authData =await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN);
         const pinData =await secureStore.getItem<string>(SECURE_PIN_CODE);
-
         if (authData && pinData) {
             set({
                 status: _AuthStatus.NEED_ACCESS_PIN,

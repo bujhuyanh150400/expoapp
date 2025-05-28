@@ -3,6 +3,7 @@ import axios from "axios";
 import {SECURE_AUTH_TOKEN} from "@/lib/storage/key";
 import ErrorAPIServer, {_HTTPStatus, ILaravelValidationErrors} from "@/api/commonType";
 import secureStore from "@/lib/storage/secure";
+import {LoginResponse} from "@/api/auth/type";
 
 export const client = axios.create({
     baseURL: BACKEND_API_URL,
@@ -16,9 +17,9 @@ export const client = axios.create({
 client.interceptors.request.use(
     async (config) => {
         // Add authorization token if available
-        const token = await secureStore.getItem(SECURE_AUTH_TOKEN);
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const loginInfo = await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN);
+        if (loginInfo) {
+            config.headers.Authorization = `Bearer ${loginInfo.token}`;
         }
         return config;
     },

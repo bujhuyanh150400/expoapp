@@ -1,9 +1,13 @@
-import {Animated, Image, Text, View} from "react-native";
+import {Alert, Animated, Image, Text, View} from "react-native";
 import {useRouter} from "expo-router";
 import {useCallback, useEffect, useRef} from "react";
 import {APP_NAME} from "@/lib/constant";
 import useAuthStore from "@/lib/store/authStore";
 import {_AuthStatus} from "@/lib/@type";
+import NetInfo from '@react-native-community/netinfo';
+
+
+
 
 export default function SplashedScreen() {
     const router = useRouter();
@@ -38,11 +42,18 @@ export default function SplashedScreen() {
             }),
         ]).start();
 
-        const timer = setTimeout(() => {
-            checkLogin().catch()
-        }, 2000);
+        // Lắng nghe sự thay đổi trạng thái mạng liên tục
+        const unsubscribe = NetInfo.addEventListener(state => {
+            if (state.isConnected) {
+                checkLogin().catch()
+            }else{
+                Alert.alert('Không có kết nối mạng', 'Vui lòng kiểm tra kết nối mạng của bạn và thử lại.');
+            }
+        });
 
-        return () => clearTimeout(timer);
+        return () => {
+            unsubscribe();
+        };
     }, []);
     return (
         <View className="flex-1 items-center justify-center">
