@@ -11,7 +11,7 @@ export default function AuthLayout() {
     const router = useRouter();
     useEffect(() => {
         if (status === _AuthStatus.AUTHORIZED) {
-            router.replace('/(app)/(account)')
+            router.replace('/(app)/account')
         }
     }, [status]);
     return (

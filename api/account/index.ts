@@ -1,5 +1,5 @@
 import {client} from "@/api/client";
-import {CreateAccountRequest, CurrencyResponse, LeverResponse} from "@/api/account/type";
+import {AccountTypeListResponse, CreateAccountRequest, CurrencyResponse, LeverResponse} from "@/api/account/type";
 
 
 const accountAPI = {
@@ -9,6 +9,10 @@ const accountAPI = {
     },
     levers: async (): Promise<LeverResponse> => {
         const response = await client.get('/levers');
+        return response.data;
+    },
+    accountTypeList: async (): Promise<AccountTypeListResponse> => {
+        const response = await client.get('/account-types/list');
         return response.data;
     },
     createAccount: async (data: CreateAccountRequest): Promise<any> => {

@@ -44,7 +44,7 @@ const tabs: TabItem[] = [
         </YStack>,
     },
 ]
-export default function HomeScreen() {
+export default function AccountScreen() {
     const router = useRouter();
 
     return (
@@ -59,7 +59,7 @@ export default function HomeScreen() {
                         borderRadius="100%"
                         icon={<FontAwesome6 name="add" size={10} color="black"/>}
                         onPress={() => {
-                            router.push('/(app)/(account)/addStepOne');
+                            router.push('/(account)/addStepOne');
                         }}
                     />
                     <Button borderRadius="100%" icon={<FontAwesome6 name="box-archive" size={10} color="black"/>}/>

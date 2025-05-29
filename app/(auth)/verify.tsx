@@ -104,7 +104,7 @@ export default function VerifyScreen() {
     useEffect(() => {
         if (isSuccess){
             verify();
-            router.replace('/(app)/(account)');
+            router.replace('/(app)/account');
         }else if(isError){
             logout();
             router.replace('/(auth)');

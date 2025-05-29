@@ -1,22 +1,21 @@
-import {Text, View} from "react-native";
-import {useFocusEffect, useNavigation} from "expo-router";
+import {useFocusEffect, useNavigation, useRouter} from "expo-router";
 import {ListItem, Separator, YGroup} from "tamagui";
 import {ChevronRight} from "@tamagui/lucide-icons";
 import {_AccountType} from "@/lib/@type";
+import useAddAccountStore from "@/lib/store/addAccountStore";
+import {useCallback} from "react";
 
 
 export default function AddStepOneScreen() {
     const navigation = useNavigation();
+    const router = useRouter();
 
-    useFocusEffect(() => {
-        // Ẩn tab bar khi màn hình này được focus
-        navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
+    const {setStepOne} = useAddAccountStore();
 
-        // Hiện lại tab bar khi rời khỏi
-        return () => {
-            navigation.getParent()?.setOptions({ tabBarStyle: undefined });
-        };
-    });
+    const setNextStep = useCallback((type: _AccountType) => {
+        setStepOne({account_type: type});
+        router.push('/(account)/addStepTwo');
+    }, [])
 
     return (
         <YGroup separator={<Separator/>}>

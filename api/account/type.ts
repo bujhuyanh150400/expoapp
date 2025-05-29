@@ -31,10 +31,25 @@ export type LeverResponse = {
 };
 
 export type CreateAccountRequest = {
-    name?: string;// tên tài khoản
+    name: string | null | undefined;// tên tài khoản
     password: string; // mật khẩu tài khoản
     currency_id: number; // loai tiền tệ
     lever_id: number; // tỷ lệ đòn bẩy
+    account_type_id: number; // id loại tài khoản
     account_type: _AccountType;  // loại tài khoản: REAL_ACCOUNT, CREDIT_ACCOUNT
 };
 
+export type AccountType = {
+    id: number; // id loại tài khoản
+    name: string; // tên loại tài khoản
+    description: string; // mô tả chi tiết về loại tài khoản
+    summary: string; // mô tả ngắn gọn về loại tài khoản
+    min: string; // số tiền tối thiểu để mở tài khoản
+    max: string; // số tiền tối đa để mở tài khoản
+    difference: string; // số tiền chênh lệch giữa các loại tài khoản
+    commission: string; // hoa hồng giao dịch
+};
+export type AccountTypeListResponse = {
+    data: AccountType[];
+    message: string;
+};

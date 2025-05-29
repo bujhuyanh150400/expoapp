@@ -18,7 +18,7 @@ export default function AppLayout() {
 
     return (
         <Tabs
-            initialRouteName="(account)"
+            initialRouteName="account"
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: '#000',
@@ -44,7 +44,7 @@ export default function AppLayout() {
         }}
         >
             <Tabs.Screen
-                name="(account)"
+                name="account"
                 options={{
                     title: 'Tài khoản',
                     tabBarIcon: (props) =>
