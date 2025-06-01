@@ -14,7 +14,7 @@ export default function AddStepOneScreen() {
 
     const setNextStep = useCallback((type: _AccountType) => {
         setStepOne({account_type: type});
-        router.push('/(account)/addStepTwo');
+        router.push('/(app)/(account)/addStepTwo');
     }, [])
 
     return (

@@ -98,7 +98,6 @@ export default function EnterPinScreen() {
                                 });
                             }
                         } catch (err) {
-                            console.error(err);
                             showMessage({
                                 message: "Có lỗi xảy ra, vui lòng thử lại.",
                                 type: 'danger',

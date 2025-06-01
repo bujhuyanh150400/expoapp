@@ -8,9 +8,10 @@ import {
     NativeScrollEvent,
 } from 'react-native';
 import {FocusAwareStatusBar} from "@/components/FocusAwareStatusBar";
-import {H3} from "tamagui";
+import {H3, ViewStyle} from "tamagui";
+import {StyleProp} from "@tamagui/web";
 
-export default function LayoutScrollApp({children, title}: { children: ReactNode, title: string }) {
+export default function LayoutScrollApp({children, title, style}: { children: ReactNode, title?: string, style?: StyleProp<ViewStyle> }) {
     const scrollY = useRef(new Animated.Value(0)).current;
     const [showHeader, setShowHeader] = useState<boolean>(false);
     // Dùng interpolate để tạo hiệu ứng fade
@@ -33,18 +34,19 @@ export default function LayoutScrollApp({children, title}: { children: ReactNode
         <View className="flex-1">
             <FocusAwareStatusBar hidden={showHeader}/>
             {/* Header fade in/out */}
-            <Animated.View style={[styles.stickyHeader, {opacity: headerOpacity}]}>
+            {title && <Animated.View style={[styles.stickyHeader, {opacity: headerOpacity}]}>
                 <View style={styles.containerHeader}>
                     <Text style={styles.titleHeader}>{title}</Text>
                 </View>
-            </Animated.View>
+            </Animated.View>}
 
             <Animated.ScrollView
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
                 contentContainerStyle={{padding: 20}}
+                style={style as any}
             >
-                <H3 paddingBottom={12} fontWeight={700}>{title}</H3>
+                {title && <H3 paddingBottom={12} fontWeight={700}>{title}</H3>}
                 {children}
             </Animated.ScrollView>
         </View>

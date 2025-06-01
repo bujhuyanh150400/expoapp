@@ -13,7 +13,13 @@ export default function AccountLayout() {
     }, [status]);
 
     return (
-        <Stack>
+        <Stack initialRouteName="account">
+            <Stack.Screen name="account" options={{
+                headerShown: false,
+            }} />
+            <Stack.Screen name="list" options={{
+                headerShown: false,
+            }} />
             <Stack.Screen name="addStepOne" options={{
                 title: 'Tạo tài khoản',
                 headerShown: true,
@@ -38,6 +44,14 @@ export default function AccountLayout() {
                 headerTintColor: '#000',
                 headerBackButtonDisplayMode:"minimal",
             }}/>
+
+            {/* Nạp tiền */}
+            <Stack.Screen name="recharge/credit" options={{
+                title: 'Nạp tiền vào tài khoản',
+                headerShown: true,
+                headerTintColor: '#000',
+                headerBackButtonDisplayMode:"minimal",
+            }} />
         </Stack>
     )
 

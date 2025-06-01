@@ -40,7 +40,6 @@ export default function RegisterScreen() {
             router.replace('/(auth)/registerSuccess')
         },
         onError: (error) => {
-            console.error(error)
             handleErrorApi({error, setError});
         }
     })

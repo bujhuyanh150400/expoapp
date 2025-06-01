@@ -8,7 +8,7 @@ type Params<T extends FieldValues> = {
     setError?: UseFormSetError<T>;
 };
 export default function useApiErrorHandler<T extends FieldValues>() {
-    return useCallback(({ error, setError }: Params<T>) => {
+    return useCallback(({error, setError}: Params<T>) => {
         if (error instanceof ErrorAPIServer) {
             if (error.validateError && setError) {
                 const validationErrors = error.validateError;
@@ -33,4 +33,31 @@ export default function useApiErrorHandler<T extends FieldValues>() {
             });
         }
     }, []);
+}
+
+export function useShowErrorHandler(error: Error | any) {
+    if (error instanceof ErrorAPIServer) {
+        if (error.validateError) {
+            const validationErrors = error.validateError;
+            const firstKey = Object.keys(validationErrors)[0];
+            const firstValue = validationErrors[firstKey];
+            showMessage({
+                message: firstValue[0],
+                type: 'danger',
+                duration: 3000,
+            });
+        } else if (error.message) {
+            showMessage({
+                message: error.message,
+                type: 'danger',
+                duration: 3000,
+            });
+        }
+    } else {
+        showMessage({
+            message: 'Đã xảy ra lỗi không xác định, vui lòng thử lại sau',
+            type: 'danger',
+            duration: 3000,
+        });
+    }
 }

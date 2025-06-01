@@ -31,6 +31,7 @@ export type LeverResponse = {
 };
 
 export type CreateAccountRequest = {
+    user_id: number;
     name: string | null | undefined;// tên tài khoản
     password: string; // mật khẩu tài khoản
     currency_id: number; // loai tiền tệ
@@ -53,3 +54,35 @@ export type AccountTypeListResponse = {
     data: AccountType[];
     message: string;
 };
+
+export type AccountListResponse = {
+    message: string;
+    data: Account[];
+};
+export type AccountActiveResponse = {
+    message: string;
+    data: Account;
+};
+export type Account = {
+    id: number;
+    code: string;
+    account_type_id: number;
+    currency_id: number;
+    lever_id: number;
+    name: string;
+    money: number;
+    profit: number;
+    type: _AccountType;
+    status: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user_id: number;
+    account_type: AccountType; // Thông tin loại tài khoản
+    currency: CurrencyType;
+};
+
+export type RechargeAccountRequest = {
+    account_id: number; // id tài khoản
+    money: number; // số tiền nạp vào tài khoản
+}

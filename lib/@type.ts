@@ -15,3 +15,20 @@ export enum _AccountType {
     TEST_ACCOUNT = 0,
     REAL_ACCOUNT = 1,
 }
+
+/**
+ * Time frame types
+ */
+export enum _Timeframe {
+    OneMinute = '1min',
+    FiveMinutes = '5min',
+    FifteenMinutes = '15min',
+    ThirtyMinutes = '30min',
+    FortyFiveMinutes = '45min',
+    OneHour = '1h',
+    TwoHour = '2h',
+    FourHour = '4h',
+    OneDay = '1day',
+    OneWeek = '1week',
+    OneMonth = '1month',
+}

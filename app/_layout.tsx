@@ -1,13 +1,10 @@
 import { Stack } from "expo-router";
-import {ReactNode, useEffect} from "react";
-import {loadSelectedTheme, useThemeConfig} from "@/lib/hooks/use-selected-theme";
+import {ReactNode} from "react";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { StyleSheet } from 'react-native';
-import {ThemeProvider} from "@react-navigation/core";
 import {APIProvider} from "@/api/ApiProvider";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import FlashMessage from 'react-native-flash-message';
-import * as SplashScreen from 'expo-splash-screen';
 import './global.css'
 export { ErrorBoundary } from 'expo-router';
 import { defaultConfig } from '@tamagui/config/v4' // for quick config install this
@@ -22,7 +19,7 @@ export default function RootLayout() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(app)" options={{ headerShown: false }} />
-            <Stack.Screen name="(account)" options={{ headerShown: false }} />
+            <Stack.Screen name="(trade)" options={{ headerShown: false }} />
         </Stack>
       </LayoutProvider>
   )

@@ -46,7 +46,7 @@ export default function AddStepTwo() {
             <YStack flex={1} gap="$2" padding={16}>
                 <Carousel
                     width={width - 32}
-                    height={480}
+                    height={420}
                     data={accountTypes}
                     scrollAnimationDuration={200}
                     onSnapToItem={(index: number) => {

@@ -1,8 +1,15 @@
 import React, {useState} from 'react'
-import {Input, YStack, Text, XStack, Button, Paragraph} from 'tamagui'
+import {Input, YStack, Text, XStack, Button, Paragraph, Spinner} from 'tamagui'
 import {Check, X} from '@tamagui/lucide-icons'
 import {Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback} from "react-native";
 import useAddAccountStore from "@/lib/store/addAccountStore";
+import {useMutation} from "@tanstack/react-query";
+import {useRouter} from "expo-router";
+import accountAPI from "@/api/account";
+import {CreateAccountRequest} from "@/api/account/type";
+import {showMessage} from "react-native-flash-message";
+import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
+import useAuthStore from "@/lib/store/authStore";
 
 const rules = [
     {
@@ -24,22 +31,49 @@ const rules = [
 ]
 
 export default function AddStepFourScreen() {
+    const router = useRouter();
+
     const [password, setPassword] = useState('')
 
     const allValid = rules.every((rule) => rule.isValid(password))
 
     const {form_step_1, form_step_2, form_step_3} = useAddAccountStore();
+    const {auth_data} = useAuthStore();
+
+    const {mutate, isPending} = useMutation({
+        mutationFn: (data: CreateAccountRequest) => accountAPI.createAccount(data),
+        onSuccess: async () => {
+            showMessage({
+                message: "Tạo tài khoản ví thành công",
+                type: 'success',
+                duration: 3000,
+            });
+            router.replace('/(app)/(account)/account');
+        },
+        onError: (error) => {
+            useShowErrorHandler(error);
+        }
+    })
+
 
     const onSubmit = () => {
-        const data = {
-            ...form_step_1,
-            ...form_step_2,
-            ...form_step_3,
-            password: password,
+        if (form_step_1 && form_step_2 && form_step_3 && auth_data) {
+            const data: CreateAccountRequest = {
+                ...form_step_1,
+                ...form_step_2,
+                ...form_step_3,
+                user_id: auth_data.user.id,
+                password,
+            }
+            mutate(data);
+        } else {
+            showMessage({
+                message: 'Đã xảy ra lỗi không xác định, vui lòng thử lại sau',
+                type: 'danger',
+                duration: 3000,
+            });
         }
-        console.log(data)
     }
-
 
     return (
         <KeyboardAvoidingView
@@ -82,11 +116,12 @@ export default function AddStepFourScreen() {
                             đích bảo mật.
                         </Paragraph>
                     </YStack>
-
-                    <Button theme="yellow" fontWeight="bold" borderWidth={1} borderColor="$yellow10"
-                            disabled={!allValid} onPress={onSubmit}>
-                        Xác nhận
-                    </Button>
+                    {isPending ? <Spinner/> :
+                        <Button theme="yellow" fontWeight="bold" borderWidth={1} borderColor="$yellow10"
+                                disabled={!allValid} onPress={onSubmit}>
+                            Xác nhận
+                        </Button>
+                    }
                 </YStack>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>

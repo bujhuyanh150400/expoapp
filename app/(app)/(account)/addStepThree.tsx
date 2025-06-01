@@ -21,6 +21,7 @@ import {useRouter} from "expo-router";
 
 export default function AddStepThreeScreen() {
     const router = useRouter();
+    // @ts-ignore
     const {
         control,
         handleSubmit,
@@ -47,7 +48,7 @@ export default function AddStepThreeScreen() {
     });
     const onSubmit = useCallback((data: FormAddAccountStepThree) => {
         setStepThree(data);
-        router.push('/(account)/addStepFour');
+        router.push('/(app)/(account)/addStepFour');
     }, []);
 
     const currenciesOptions = useMemo(() => {
@@ -63,6 +64,7 @@ export default function AddStepThreeScreen() {
             value: lever.id.toString(),
         })) || [];
     }, [leversQuery.data]);
+    // @ts-ignore
     return (
         <>
             <FullScreenLoading loading={currenciesQuery.isLoading && leversQuery.isLoading}/>
