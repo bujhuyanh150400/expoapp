@@ -4,7 +4,7 @@ import {
     LoginResponse,
     RegisterRequest,
     VerifyCodeRequest,
-    ResetPasswordRequest
+    ResetPasswordRequest, UserLogin, VerifyUserRequest
 } from "@/api/auth/type";
 import {client} from "@/api/client";
 import {ResponseSuccessType} from "@/api/commonType";
@@ -30,8 +30,12 @@ const authAPI = {
         const response = await client.post('/auth/reset-password', data);
         return response.data;
     },
-    userProfile: async () : Promise<ResponseSuccessType> => {
+    userProfile: async () : Promise<UserLogin> => {
         const response = await client.get('/auth/user-profile');
+        return response.data;
+    },
+    verifyAccount: async (data: VerifyUserRequest): Promise<ResponseSuccessType>  =>  {
+        const response = await client.post('/auth/verify-account', data);
         return response.data;
     }
 }

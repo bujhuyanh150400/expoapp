@@ -1,9 +1,30 @@
 import {Tabs, useRouter} from 'expo-router';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import useAuthStore from "@/lib/store/authStore";
-import {useEffect} from "react";
+import {useEffect, useMemo} from "react";
 import {_AuthStatus} from "@/lib/@type";
-import useAppInactive from "@/lib/hooks/useAppInactive";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { StyleSheet } from 'react-native';
+
+
+export const styleLayout = StyleSheet.create({
+    tabBarStyle: {
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
+        height: 64,
+        // SHADOW cho iOS
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: -1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        // SHADOW cho Android
+        elevation: 10,
+    }
+});
 
 export default function AppLayout() {
     const {status} = useAuthStore();
@@ -24,23 +45,13 @@ export default function AppLayout() {
                 tabBarActiveTintColor: '#000',
                 tabBarInactiveTintColor: '#8c8c8c',
                 tabBarItemStyle: {
+                    paddingVertical: 8,
+                    paddingHorizontal: 16,
                 },
-                tabBarStyle: {
-                    backgroundColor: '#fff',
-                    borderTopWidth: 1,
-                    borderTopColor: '#ccc',
-                    height: 56,
-                    // SHADOW cho iOS
-                    shadowColor: '#000',
-                    shadowOffset: {
-                        width: 0,
-                        height: -1,
-                    },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 6,
-                    // SHADOW cho Android
-                    elevation: 10,
+                tabBarLabelStyle: {
+                    marginTop: 4,
                 },
+                tabBarStyle: styleLayout.tabBarStyle,
         }}
         >
             <Tabs.Screen
@@ -48,7 +59,7 @@ export default function AppLayout() {
                 options={{
                     title: 'Tài khoản',
                     tabBarIcon: (props) =>
-                        <FontAwesome6 name="wallet" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
+                        <FontAwesome6 name="wallet" size={24} color={props.focused ? '#000' : '#8c8c8c'} />
                 }}
             />
             <Tabs.Screen
@@ -56,7 +67,7 @@ export default function AppLayout() {
                 options={{
                     title: 'Giao dịch',
                     tabBarIcon: (props) =>
-                        <FontAwesome6 name="money-bill-transfer" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
+                        <MaterialIcons name="candlestick-chart" size={24} color={props.focused ? '#000' : '#8c8c8c'} />
                 }}
             />
             <Tabs.Screen
@@ -64,7 +75,7 @@ export default function AppLayout() {
                 options={{
                     title: 'Thị trường',
                     tabBarIcon: (props) =>
-                        <FontAwesome6 name="globe" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
+                        <FontAwesome6 name="globe" size={24} color={props.focused ? '#000' : '#8c8c8c'} />
                 }}
             />
             <Tabs.Screen
@@ -72,7 +83,8 @@ export default function AppLayout() {
                 options={{
                     title: 'Hồ sơ',
                     tabBarIcon: (props) =>
-                        <FontAwesome6 name="house-user" size={16} color={props.focused ? '#000' : '#8c8c8c'} />
+                        <FontAwesome6 name="house-user" size={24} color={props.focused ? '#000' : '#8c8c8c'} />,
+
                 }}
             />
         </Tabs>

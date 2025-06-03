@@ -32,3 +32,12 @@ export enum _Timeframe {
     OneWeek = '1week',
     OneMonth = '1month',
 }
+
+/**
+ * Verìfy user status types
+ */
+export enum _VerifyUserStatus {
+    ACTIVE = 1,
+    INACTVE = 2,
+    WAITING = 3,
+}

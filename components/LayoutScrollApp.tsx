@@ -46,7 +46,7 @@ export default function LayoutScrollApp({children, title, style}: { children: Re
                 contentContainerStyle={{padding: 20}}
                 style={style as any}
             >
-                {title && <H3 paddingBottom={12} fontWeight={700}>{title}</H3>}
+                {title && <H3 paddingVertical={12} fontWeight={700}>{title}</H3>}
                 {children}
             </Animated.ScrollView>
         </View>

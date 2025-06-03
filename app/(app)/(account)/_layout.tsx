@@ -4,14 +4,6 @@ import {useEffect} from "react";
 import {_AuthStatus} from "@/lib/@type";
 
 export default function AccountLayout() {
-    const {status} = useAuthStore();
-    const router = useRouter();
-    useEffect(() => {
-        if (status === _AuthStatus.UNAUTHORIZED) {
-            router.replace('/(auth)')
-        }
-    }, [status]);
-
     return (
         <Stack initialRouteName="account">
             <Stack.Screen name="account" options={{

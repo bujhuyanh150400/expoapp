@@ -17,7 +17,9 @@ type Option = {
 type SelectFieldProps = {
     options: Option[]
     placeholder?: string
-    value: string | number
+    value: string | number,
+    backgroundColor?: string,
+    borderColor? : string,
     onValueChange: (val: string | number) => void
 } & SelectProps
 
@@ -27,6 +29,8 @@ export default function SelectFields(
         placeholder = 'Chọn một mục',
         value,
         onValueChange,
+        backgroundColor,
+        borderColor,
         ...props
     }: SelectFieldProps) {
     return (
@@ -36,7 +40,7 @@ export default function SelectFields(
             disablePreventBodyScroll
             {...props}
         >
-            <Select.Trigger iconAfter={ChevronDown} borderWidth={1} borderColor="$borderColor">
+            <Select.Trigger iconAfter={ChevronDown} borderWidth={1} backgroundColor={backgroundColor} borderColor={borderColor? borderColor : '$borderColor'}>
                 <Select.Value placeholder={placeholder}/>
             </Select.Trigger>
 

@@ -107,7 +107,7 @@ export default function AccountScreen() {
                                 </YStack>
                                 <TouchableOpacity
                                     onPress={() => {
-                                        router.push('/(account)/list');
+                                        router.push('/(app)/(account)/list');
                                     }}
                                 >
                                     <FontAwesome6 name="list" size={18} color="black" />
@@ -140,7 +140,7 @@ export default function AccountScreen() {
                                             borderRadius="100%"
                                             icon={<FontAwesome6 name="add" size={10} color="black"/>}
                                             onPress={() => {
-                                                router.push('/(account)/addStepOne');
+                                                router.push('(app)/(account)/addStepOne');
                                             }}
                                         />
                                         <Paragraph theme="alt2" fontSize="$2">Tạo tài khoản</Paragraph>

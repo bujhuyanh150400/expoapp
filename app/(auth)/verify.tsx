@@ -95,27 +95,34 @@ export default function VerifyScreen() {
         }
     }, [pin, pin_code]);
 
-    const {refetch, isLoading, isSuccess, isError} = useQuery({
-        queryKey: ['authAPI_userProfile'],
+    const {refetch, isLoading, isSuccess, isError, data} = useQuery({
+        queryKey: ['authAPI-userProfile'],
         queryFn: authAPI.userProfile,
         enabled: false,
     })
 
+    const logoutError = useCallback((message: string = "Có lỗi không mong muốn xảy ra, vui lòng đăng nhập lại") => {
+        logout();
+        router.replace('/(auth)');
+        showMessage({
+            message,
+            type: "danger",
+            icon: "danger",
+            duration: 2000,
+        });
+    }, [])
+
     useEffect(() => {
-        if (isSuccess){
-            verify();
-            router.replace('/(app)/(account)/account');
-        }else if(isError){
-            logout();
-            router.replace('/(auth)');
-            showMessage({
-                message: "Thông tin xác thực của bạn hiện không đúng, vui lòng đăng nhập lại",
-                type: "danger",
-                icon: "danger",
-                duration: 2000,
+        if (isSuccess && data) {
+            verify(data).then((status) => {
+                status ? router.replace('/(app)/(account)/account') : logoutError();
+            }).catch(() => {
+                logoutError()
             });
+        } else if (isError) {
+            logoutError('Thông tin xác thực của bạn hiện không đúng, vui lòng đăng nhập lại');
         }
-    }, [isSuccess, isError]);
+    }, [isSuccess, isError, data]);
 
     const checkVerify = useCallback(() => {
         refetch();

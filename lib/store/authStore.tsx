@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {SECURE_AUTH_TOKEN, SECURE_PIN_CODE} from "@/lib/storage/key";
 import {_AuthStatus} from "@/lib/@type";
-import {LoginResponse} from "@/api/auth/type";
+import {LoginResponse, UserLogin} from "@/api/auth/type";
 import secureStore from "@/lib/storage/secure";
 
 
@@ -13,7 +13,7 @@ interface IAuthState {
     login: (data: string) => Promise<void>;
     logout: () => Promise<void>;
     hydrate: () => Promise<void>;
-    verify: () => void;
+    verify: (data: UserLogin) => Promise<boolean>;
     unVerify: () => void;
 }
 
@@ -30,12 +30,12 @@ const useAuthStore = create<IAuthState>((set, get) => ({
     setAuthData: (data: LoginResponse) => {
         set({auth_data: data});
     },
-    login: async  (pinData) => {
+    login: async (pinData) => {
         const {auth_data} = get();
         if (!auth_data) {
             throw new Error('Login data is not set');
         }
-        await secureStore.setItem<string>(SECURE_PIN_CODE,pinData);
+        await secureStore.setItem<string>(SECURE_PIN_CODE, pinData);
         await secureStore.setItem<LoginResponse>(SECURE_AUTH_TOKEN, auth_data)
         set({status: _AuthStatus.AUTHORIZED, auth_data: auth_data});
     },
@@ -49,8 +49,8 @@ const useAuthStore = create<IAuthState>((set, get) => ({
         });
     },
     hydrate: async () => {
-        const authData =await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN);
-        const pinData =await secureStore.getItem<string>(SECURE_PIN_CODE);
+        const authData = await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN);
+        const pinData = await secureStore.getItem<string>(SECURE_PIN_CODE);
         if (authData && pinData) {
             set({
                 status: _AuthStatus.NEED_ACCESS_PIN,
@@ -66,10 +66,23 @@ const useAuthStore = create<IAuthState>((set, get) => ({
         }
     },
 
-    verify: () => {
-        set({status: _AuthStatus.AUTHORIZED})
+    verify: async (data: UserLogin) => {
+        const authData = await secureStore.getItem<LoginResponse>(SECURE_AUTH_TOKEN);
+        if (authData){
+            const auth_data = {token: authData.token, user: data}
+            await secureStore.setItem<LoginResponse>(SECURE_AUTH_TOKEN, auth_data)
+            set({status: _AuthStatus.AUTHORIZED, auth_data});
+            return true;
+        }else{
+            set({
+                status: _AuthStatus.UNAUTHORIZED,
+                auth_data: null,
+                pin_code: null
+            });
+            return false;
+        }
     },
-    unVerify : () => {
+    unVerify: () => {
         set({status: _AuthStatus.NEED_ACCESS_PIN})
     }
 }));

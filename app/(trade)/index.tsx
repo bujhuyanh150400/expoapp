@@ -45,7 +45,7 @@ export default function TradeScreen() {
     const activeAccount = account.data?.data || null;
     useEffect(() => {
         if (account.isError) {
-            router.replace('/(app)/account');
+            router.replace('/(app)/(account)/account');
             showMessage({
                 message: 'Không thể lấy thông tin tài khoản hoạt động',
                 description: 'Vui lòng thử lại sau hoặc liên hệ với bộ phận hỗ trợ.',
