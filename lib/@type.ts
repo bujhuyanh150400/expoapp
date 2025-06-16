@@ -21,16 +21,12 @@ export enum _AccountType {
  */
 export enum _Timeframe {
     OneMinute = '1min',
-    FiveMinutes = '5min',
     FifteenMinutes = '15min',
     ThirtyMinutes = '30min',
     FortyFiveMinutes = '45min',
     OneHour = '1h',
-    TwoHour = '2h',
-    FourHour = '4h',
     OneDay = '1day',
     OneWeek = '1week',
-    OneMonth = '1month',
 }
 
 /**
@@ -40,4 +36,16 @@ export enum _VerifyUserStatus {
     ACTIVE = 1,
     INACTVE = 2,
     WAITING = 3,
+}
+
+export enum _AssetType {
+    CRYPTO = 1,
+    ENERGY = 2,
+    METAL = 3,
+    OTHER = 4,
+}
+
+export enum _TradeType {
+    BUY = 0,
+    SELL = 1,
 }

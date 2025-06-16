@@ -89,7 +89,7 @@ export default function EnterPinScreen() {
 
                             if (auth.success) {
                                 await login(pin);
-                                router.replace('/(app)');
+                                router.replace('/(app)/(tab)');
                             }else{
                                 showMessage({
                                     message: "Hệ thống xác thực không thành công, vui lòng thử lại",

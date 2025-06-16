@@ -1,13 +1,9 @@
-import {Alert, Animated, Image, Text, View} from "react-native";
+import {Animated, Image, Text, View} from "react-native";
 import {useRouter} from "expo-router";
 import {useCallback, useEffect, useRef} from "react";
 import {APP_NAME} from "@/lib/constant";
 import useAuthStore from "@/lib/store/authStore";
 import {_AuthStatus} from "@/lib/@type";
-import NetInfo from '@react-native-community/netinfo';
-
-
-
 
 export default function SplashedScreen() {
     const router = useRouter();
@@ -20,9 +16,9 @@ export default function SplashedScreen() {
         await hydrate()
         const freshStatus = useAuthStore.getState().status
         if (freshStatus === _AuthStatus.NEED_ACCESS_PIN) {
-            router.replace('/(auth)/verify')
+            router.replace('/(auth)/verify');
         } else {
-            router.replace('/(auth)') // Nếu chưa login
+            router.replace('/(auth)');
         }
     }, []);
 
@@ -41,18 +37,12 @@ export default function SplashedScreen() {
                 useNativeDriver: true,
             }),
         ]).start();
-
-        // Lắng nghe sự thay đổi trạng thái mạng liên tục
-        const unsubscribe = NetInfo.addEventListener(state => {
-            if (state.isConnected) {
-                checkLogin().catch()
-            }else{
-                Alert.alert('Không có kết nối mạng', 'Vui lòng kiểm tra kết nối mạng của bạn và thử lại.');
-            }
-        });
+        const duration = setTimeout(() => {
+            checkLogin().catch()
+        },2000);
 
         return () => {
-            unsubscribe();
+            clearTimeout(duration);
         };
     }, []);
     return (

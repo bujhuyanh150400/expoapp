@@ -34,8 +34,12 @@ const authAPI = {
         const response = await client.get('/auth/user-profile');
         return response.data;
     },
-    verifyAccount: async (data: VerifyUserRequest): Promise<ResponseSuccessType>  =>  {
-        const response = await client.post('/auth/verify-account', data);
+    verifyAccount: async (data: FormData): Promise<ResponseSuccessType>  =>  {
+        const response = await client.post('/auth/verify-account', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
         return response.data;
     }
 }

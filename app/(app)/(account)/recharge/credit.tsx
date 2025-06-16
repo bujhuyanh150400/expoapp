@@ -16,8 +16,12 @@ import {
     TextInput,
     Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback
 } from 'react-native';
+import useHideTabLayout from "@/lib/hooks/useHideTabLayout";
 
 export default function RechargeCreditScreen() {
+    // Ẩn tab layout
+    useHideTabLayout();
+
     const router = useRouter();
 
     const {account_id, currency} = useLocalSearchParams<{ account_id?: string; currency?: string }>();
@@ -53,7 +57,7 @@ export default function RechargeCreditScreen() {
                 type: "danger",
                 duration: 3000,
             })
-            router.replace("/(app)/(account)/account");
+            router.replace("/(app)/(tab)");
         }
     }, [account_id]);
 
@@ -65,7 +69,7 @@ export default function RechargeCreditScreen() {
                 type: 'success',
                 duration: 3000,
             });
-            router.replace("/(app)/(account)/account");
+            router.replace("/(app)/(tab)");
         },
         onError: (error) => {
             useShowErrorHandler(error);

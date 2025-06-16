@@ -1,5 +1,4 @@
 import {useQuery} from "@tanstack/react-query";
-import accountAPI from "@/api/account";
 import FullScreenLoading from "@/components/FullScreenLoading";
 import {
     Form,
@@ -17,9 +16,14 @@ import {Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback} from
 import React, {useCallback, useMemo} from "react";
 import SelectFields from "@/components/SelectFields";
 import {useRouter} from "expo-router";
+import commonAPI from "@/api/common";
+import useHideTabLayout from "@/lib/hooks/useHideTabLayout";
 
 
 export default function AddStepThreeScreen() {
+    // Ẩn tab layout
+    useHideTabLayout();
+
     const router = useRouter();
     // @ts-ignore
     const {
@@ -39,12 +43,12 @@ export default function AddStepThreeScreen() {
     const {setStepThree} = useAddAccountStore();
 
     const currenciesQuery = useQuery({
-        queryKey: ['accountAPI-currencies'],
-        queryFn: accountAPI.currencies,
+        queryKey: ['commonAPI-currencies'],
+        queryFn: commonAPI.currencies,
     });
     const leversQuery = useQuery({
-        queryKey: ['accountAPI-levers'],
-        queryFn: accountAPI.levers,
+        queryKey: ['commonAPI-levers'],
+        queryFn: commonAPI.levers,
     });
     const onSubmit = useCallback((data: FormAddAccountStepThree) => {
         setStepThree(data);

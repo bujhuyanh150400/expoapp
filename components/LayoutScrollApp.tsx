@@ -8,7 +8,7 @@ import {
     NativeScrollEvent,
 } from 'react-native';
 import {FocusAwareStatusBar} from "@/components/FocusAwareStatusBar";
-import {H3, ViewStyle} from "tamagui";
+import {H3, H6, ViewStyle} from "tamagui";
 import {StyleProp} from "@tamagui/web";
 
 export default function LayoutScrollApp({children, title, style}: { children: ReactNode, title?: string, style?: StyleProp<ViewStyle> }) {
@@ -46,7 +46,7 @@ export default function LayoutScrollApp({children, title, style}: { children: Re
                 contentContainerStyle={{padding: 20}}
                 style={style as any}
             >
-                {title && <H3 paddingVertical={12} fontWeight={700}>{title}</H3>}
+                {title && <H6 paddingVertical={12} fontWeight={700}>{title}</H6>}
                 {children}
             </Animated.ScrollView>
         </View>

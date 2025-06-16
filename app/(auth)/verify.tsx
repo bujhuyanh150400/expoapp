@@ -115,7 +115,7 @@ export default function VerifyScreen() {
     useEffect(() => {
         if (isSuccess && data) {
             verify(data).then((status) => {
-                status ? router.replace('/(app)/(account)/account') : logoutError();
+                status ? router.replace('/(app)/(tab)') : logoutError();
             }).catch(() => {
                 logoutError()
             });

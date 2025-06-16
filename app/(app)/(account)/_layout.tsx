@@ -5,10 +5,7 @@ import {_AuthStatus} from "@/lib/@type";
 
 export default function AccountLayout() {
     return (
-        <Stack initialRouteName="account">
-            <Stack.Screen name="account" options={{
-                headerShown: false,
-            }} />
+        <Stack>
             <Stack.Screen name="list" options={{
                 headerShown: false,
             }} />

@@ -1,17 +1,19 @@
 import {client} from "@/api/client";
 import {API_KEY} from "@/lib/constant";
-import {TimeSeriesRequest, TimeSeriesResponse} from "@/api/core_data/type";
+import {TimeSeriesResponse} from "@/api/core_data/type";
+import axios from "axios";
+import {_Timeframe} from "@/lib/@type";
 
 
 const coreDataApi = {
-    /**
-     * Dung để lấy dữ liệu chuỗi thời gian (time series data)
-     */
-    time_series: async (params: TimeSeriesRequest): Promise<TimeSeriesResponse> => {
-        const response = await client.get('/time_series', {
+    time_series: async (params: {symbol: string, interval: _Timeframe}): Promise<TimeSeriesResponse> => {
+        const response = await axios.get('https://api.twelvedata.com/time_series', {
             params: {
-                api_key: API_KEY,
-                ...params,
+                apikey: 'be8d011480234c0cb633f6880e5930f6',
+                symbol: params.symbol,
+                interval: params.interval,
+                order: 'ASC',
+                outputsize: 150
             }
         });
         return response.data;

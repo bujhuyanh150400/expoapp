@@ -5,18 +5,30 @@ import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import useVerifyAccountUserStore, {FormVerifyAccountStepOne} from "@/lib/store/verifyAccountUserStore";
 import { useRouter} from "expo-router";
-import {Button, Form, H6, Input, Label, Paragraph, YStack} from "tamagui";
+import {Button, Form,  Input, Label, Paragraph, YStack} from "tamagui";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from "dayjs";
-import React from "react";
+import React, {useMemo} from "react";
 import SelectFields from "@/components/SelectFields";
 import useHideTabLayout from "@/lib/hooks/useHideTabLayout";
+import {useQuery} from "@tanstack/react-query";
+import commonAPI from "@/api/common";
 
+const removeVietnameseTones = (str: string) => {
+    return str
+        .normalize('NFD') // Tách dấu khỏi ký tự
+        .replace(/[\u0300-\u036f]/g, '') // Xóa các dấu
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toUpperCase();
+};
 
 export default function StepOneScreen(){
     const router = useRouter();
 
+    // Ẩn tab layout
     useHideTabLayout()
+
     const {
         control,
         handleSubmit,
@@ -44,6 +56,9 @@ export default function StepOneScreen(){
                     .string()
                     .required('Số điện thoại là bắt buộc.')
                     .max(20, 'Số điện thoại không được vượt quá 20 ký tự.'),
+                bin_bank: yup.string().required('Vui lòng chọn ngân hàng'),
+                account_bank: yup.string().required('Số tài khoản không được để trống'),
+                account_bank_name: yup.string().required('Tên chủ tài khoản không được để trống'),
                 address: yup
                     .string()
                     .required('Địa chỉ là bắt buộc.')
@@ -52,13 +67,22 @@ export default function StepOneScreen(){
         ),
     });
 
+    const listBankQuery = useQuery({
+        queryKey: ['commonAPI-listBank'],
+        queryFn: commonAPI.listBank,
+    });
+
+    const listBankOptions = useMemo(() => {
+        return listBankQuery.data?.data.map(bank => ({
+            label: `${bank.code} - ${bank.short_name}`,
+            value: bank.bin,
+        })) || [];
+    }, [listBankQuery.data]);
+
     const {setStepOne} = useVerifyAccountUserStore();
 
-    // const onSubmit = (data: FormVerifyAccountStepOne) => {
-    //     setStepOne(data);
-    //     router.push('/(app)/(info)/verify_user/stepTwo');
-    // };
-    const onSubmit = () => {
+    const onSubmit = (data: FormVerifyAccountStepOne) => {
+        setStepOne(data);
         router.push('/(app)/(info)/verify_user/stepTwo');
     };
 
@@ -136,7 +160,7 @@ export default function StepOneScreen(){
                         <Controller
                             control={control}
                             name="gender"
-                            render={({field: {onChange, onBlur, value}}) => (
+                            render={({field: {onChange, value}}) => (
                                 <YStack gap="$2">
                                     <Label fontWeight={500}  size="$2">Giới tính</Label>
                                     <SelectFields
@@ -151,9 +175,9 @@ export default function StepOneScreen(){
                                         onValueChange={onChange}
                                         placeholder="Chọn giới tính"
                                     />
-                                    {!!errors.last_name && (
+                                    {!!errors.gender && (
                                         <Label color="red" size="$2">
-                                            {errors.last_name.message}
+                                            {errors.gender.message}
                                         </Label>
                                     )}
                                 </YStack>
@@ -215,6 +239,87 @@ export default function StepOneScreen(){
                             )}
                         />
 
+                        {/* bin bank */}
+                        <Controller
+                            control={control}
+                            name="bin_bank"
+                            render={({field: {onChange, value}}) => (
+                                <YStack gap="$2">
+                                    <Label fontWeight={500}  size="$2">Ngân hàng</Label>
+                                    <SelectFields
+                                        backgroundColor="#fff"
+                                        options={listBankOptions}
+                                        borderColor={!!errors.bin_bank ? 'red' : '$borderColor'}
+                                        value={`${value}`}
+                                        onValueChange={onChange}
+                                        placeholder="Chọn ngân hàng"
+                                    />
+                                    {!!errors.bin_bank && (
+                                        <Label color="red" size="$2">
+                                            {errors.bin_bank.message}
+                                        </Label>
+                                    )}
+                                </YStack>
+                            )}
+                        />
+
+                        {/* account_bank */}
+                        <Controller
+                            control={control}
+                            name="account_bank"
+                            render={({field: {onChange, onBlur, value}}) => (
+                                <YStack gap="$2">
+                                    <Label fontWeight={500} size="$2">Tài khoản ngân hàng</Label>
+                                    <Input
+                                        id="account_bank"
+                                        placeholder="Tài khoản ngân hàng"
+                                        value={value ?? ""}
+                                        onChangeText={onChange}
+                                        backgroundColor="#fff"
+                                        onBlur={onBlur}
+                                        keyboardType="default"
+                                        autoCapitalize="none"
+                                        borderColor={!!errors.account_bank ? 'red' : '$borderColor'}
+                                    />
+                                    {!!errors.account_bank && (
+                                        <Label color="red" size="$2">
+                                            {errors.account_bank.message}
+                                        </Label>
+                                    )}
+                                </YStack>
+                            )}
+                        />
+
+                        {/* account_bank_name */}
+                        <Controller
+                            control={control}
+                            name="account_bank_name"
+                            render={({field: {onChange, onBlur, value}}) => (
+                                <YStack gap="$2">
+                                    <Label fontWeight={500} size="$2">Tên tài khoản ngân hàng</Label>
+                                    <Input
+                                        id="account_bank_name"
+                                        placeholder="Tên tài khoản ngân hàng"
+                                        value={value ?? ""}
+                                        onChangeText={(text) => {
+                                            const formatted = removeVietnameseTones(text);
+                                            onChange(formatted);
+                                        }}
+                                        backgroundColor="#fff"
+                                        onBlur={onBlur}
+                                        keyboardType="default"
+                                        autoCapitalize="none"
+                                        borderColor={!!errors.account_bank_name ? 'red' : '$borderColor'}
+                                    />
+                                    {!!errors.account_bank_name && (
+                                        <Label color="red" size="$2">
+                                            {errors.account_bank_name.message}
+                                        </Label>
+                                    )}
+                                </YStack>
+                            )}
+                        />
+
                         {/* dob */}
                         <Controller
                             control={control}
@@ -245,8 +350,7 @@ export default function StepOneScreen(){
                             )}
                         />
 
-                        {/*<Button theme="yellow" fontWeight={500} onPress={handleSubmit(onSubmit)}>*/}
-                        <Button theme="yellow" fontWeight={500} onPress={onSubmit}>
+                        <Button theme="yellow" fontWeight={500} onPress={handleSubmit(onSubmit)}>
                             Bước tiếp theo
                         </Button>
                     </Form>

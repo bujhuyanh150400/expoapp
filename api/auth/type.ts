@@ -1,4 +1,5 @@
 import {_VerifyUserStatus} from "@/lib/@type";
+import {Bank} from "@/api/common/type";
 
 /**
  * Login
@@ -24,6 +25,10 @@ export type UserLogin = {
     cccd_front_image: string | null;
     cccd_back_image: string | null;
     creator_id: number | null;
+    bin_bank: string;
+    account_bank: string;
+    account_bank_name: string;
+    banks?: Bank
 }
 export type LoginResponse = {
     token: string;
@@ -73,6 +78,9 @@ export interface VerifyUserRequest {
     dob: string;
     gender: 'male' | 'female' | 'other';
     phone_number: string;
+    bin_bank: string;
+    account_bank: string;
+    account_bank_name: string;
     address: string;
     cccd_front_image: File;
     cccd_back_image: File;

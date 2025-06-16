@@ -1,13 +1,16 @@
-import {useFocusEffect, useNavigation, useRouter} from "expo-router";
+import {useRouter} from "expo-router";
 import {ListItem, Separator, YGroup} from "tamagui";
 import {ChevronRight} from "@tamagui/lucide-icons";
 import {_AccountType} from "@/lib/@type";
 import useAddAccountStore from "@/lib/store/addAccountStore";
 import {useCallback} from "react";
+import useHideTabLayout from "@/lib/hooks/useHideTabLayout";
 
 
 export default function AddStepOneScreen() {
-    const navigation = useNavigation();
+    // Ẩn tab layout
+    useHideTabLayout()
+
     const router = useRouter();
 
     const {setStepOne} = useAddAccountStore();

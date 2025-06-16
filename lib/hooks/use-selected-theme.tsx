@@ -7,7 +7,7 @@ import {
     DefaultTheme,
 } from '@react-navigation/native';
 
-import colors from '@/components/ui/color';
+import colors from '@/components/ui/DefaultColor';
 import {useAsyncStorageString} from "@/lib/hooks/useAsyncStorageString";
 import storage from "@/lib/storage";
 

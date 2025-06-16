@@ -10,6 +10,7 @@ import {CreateAccountRequest} from "@/api/account/type";
 import {showMessage} from "react-native-flash-message";
 import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
 import useAuthStore from "@/lib/store/authStore";
+import useHideTabLayout from "@/lib/hooks/useHideTabLayout";
 
 const rules = [
     {
@@ -31,6 +32,9 @@ const rules = [
 ]
 
 export default function AddStepFourScreen() {
+    // Ẩn tab layout
+    useHideTabLayout();
+
     const router = useRouter();
 
     const [password, setPassword] = useState('')
@@ -48,9 +52,10 @@ export default function AddStepFourScreen() {
                 type: 'success',
                 duration: 3000,
             });
-            router.replace('/(app)/(account)/account');
+            router.replace('/(app)/(tab)');
         },
         onError: (error) => {
+            console.log(error)
             useShowErrorHandler(error);
         }
     })
