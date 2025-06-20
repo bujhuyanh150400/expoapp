@@ -10,8 +10,7 @@ import useHideTabLayout from "@/lib/hooks/useHideTabLayout";
 
 
 export default function UserInfoScreen() {
-    // Ẩn tab layout
-    useHideTabLayout();
+
 
     const userProfileQuery = useQuery({
         queryKey: ['authAPI-userProfile'],
