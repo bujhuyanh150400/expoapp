@@ -49,3 +49,25 @@ export enum _TradeType {
     BUY = 0,
     SELL = 1,
 }
+
+export enum _SupportTicketType {
+    TECHNICAL = 1,
+    PAYMENT = 2,
+    TRANSACTION = 3,
+}
+
+export enum _SupportTicketStatus {
+    OPEN = 1,
+    CLOSED = 2,
+}
+
+export enum _SupportTicketSenderType {
+    USER = 1,
+    AGENT = 2,
+}
+
+export enum _SupportTicketPriority {
+    LOW = 1,
+    MEDIUM = 2,
+    HIGH = 3,
+}

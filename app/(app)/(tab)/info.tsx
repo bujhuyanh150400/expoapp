@@ -207,7 +207,9 @@ export default function InfoScreen() {
                                 </XStack>
                             </XStack>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={maintainWarning}>
+                        <TouchableOpacity onPress={() => {
+                            router.push('/(app)/(info)/support/create/stepOne')
+                        }}>
                             <XStack alignItems="center" justifyContent="space-between" gap="$4" flex={1}>
                                 <XStack alignItems="center" gap="$4">
                                     <View style={style.box_icon}>
