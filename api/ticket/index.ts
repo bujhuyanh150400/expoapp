@@ -1,11 +1,11 @@
-import {CreateTicketRequest, ListTicketResponse, ReplyTicketRequest} from "@/api/ticket/type";
+import {CreateTicketRequest, ListTicketRequest, ListTicketResponse, ReplyTicketRequest} from "@/api/ticket/type";
 import {client} from "@/api/client";
 import {ResponseSuccessType} from "@/api/commonType";
 
 
 const ticketAPI = {
-    list: async (): Promise<ListTicketResponse> => {
-        const response = await client.get('/tickets');
+    list: async (params: ListTicketRequest): Promise<ListTicketResponse> => {
+        const response = await client.get('/tickets', {params});
         return response.data;
     },
     create: async (data: CreateTicketRequest): Promise<ResponseSuccessType> => {

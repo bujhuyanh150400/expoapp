@@ -14,3 +14,5 @@ export const APP_INFO = {
     version: '1.0.0',
     number_version: '1351',
 }
+
+export const SUPPORT_PHONE_NUMBER = "18006371"

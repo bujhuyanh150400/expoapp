@@ -85,11 +85,11 @@ export default function stepTwoScreen(){
                     paddingVertical="$4"
                     justifyContent="space-between"
                     onSubmit={handleSubmit(onSubmit)}>
-                    <YStack gap="$4">
+                    <YStack gap="$4" flex={1}>
                         <Controller
                             control={control}
                             name="priority"
-                            render={({field: {onChange, onBlur, value}}) => (
+                            render={({field: {onChange, value}}) => (
                                 <YStack gap="$2">
                                     <Label size="$2">
                                         Độ ưu tiên
@@ -117,23 +117,24 @@ export default function stepTwoScreen(){
                             control={control}
                             name="message"
                             render={({field: {onChange, onBlur, value}}) => (
-                                <YStack gap="$2">
+                                <YStack gap="$2" flex={1}>
                                     <Label size="$2">
                                         Phản hồi
                                     </Label>
                                     <YStack flex={1} backgroundColor={DefaultColor.white} borderRadius={8}>
                                         <TextArea
+                                            flex={1}
                                             id="message"
                                             value={value ?? ''}
                                             onChangeText={onChange}
                                             onBlur={onBlur}
-                                            placeholder="Bạn hãy nhập phản hồi của mình tại đây"
+                                            placeholder="Bạn hãy nhập phản hồi của mình tại đây, chúng tôi sẽ cố gắng phản hồi bạn sớm nhất"
                                             keyboardType="default"
                                             autoCapitalize="none"
                                             multiline
                                             borderColor={!!errors.message ? 'red' : '$borderColor'}
+                                            backgroundColor={DefaultColor.white}
                                             style={{
-                                                flex: 1,
                                                 textAlignVertical: 'top',
                                                 padding: 10,
                                             }}

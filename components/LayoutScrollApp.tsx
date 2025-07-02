@@ -33,13 +33,6 @@ export default function LayoutScrollApp({children, title, style}: { children: Re
     return (
         <View className="flex-1">
             <FocusAwareStatusBar hidden={showHeader}/>
-            {/* Header fade in/out */}
-            {title && <Animated.View style={[styles.stickyHeader, {opacity: headerOpacity}]}>
-                <View style={styles.containerHeader}>
-                    <Text style={styles.titleHeader}>{title}</Text>
-                </View>
-            </Animated.View>}
-
             <Animated.ScrollView
                 onScroll={handleScroll}
                 scrollEventThrottle={16}

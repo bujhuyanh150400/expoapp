@@ -30,8 +30,8 @@ export default function InfoScreen() {
 
     return (
         <>
-            <LayoutScrollApp title="Hồ sơ" >
-                <YStack gap={4} marginTop={24} paddingBottom={52}>
+            <LayoutScrollApp title="Hồ sơ">
+                <YStack gap={4} marginTop={24} paddingBottom={100}>
                     <Paragraph fontWeight={700} fontSize={20} marginBottom={16}>Tài khoản</Paragraph>
                     <TouchableOpacity
                         onPress={()=> router.push("/(app)/(info)/userInfo")}
@@ -135,7 +135,7 @@ export default function InfoScreen() {
                                     <View style={style.box_icon}>
                                         <FontAwesome6 name="moon" size={18} color="black" />
                                     </View>
-                                    <Paragraph maxWidth={100} lineHeight={18}>Miễn phí phí qua đêm</Paragraph>
+                                    <Paragraph maxWidth={250} lineHeight={18}>Miễn phí phí qua đêm</Paragraph>
                                 </XStack>
                                 <XStack gap="$2" alignItems="center">
                                     <FontAwesome6 name="angle-right" size={20} color="black"/>
@@ -148,20 +148,7 @@ export default function InfoScreen() {
                                     <View style={style.box_icon}>
                                         <Ionicons name="shield-checkmark-outline" size={18} color="black" />
                                     </View>
-                                    <Paragraph lineHeight={18}>Bảo vệ số dư âm</Paragraph>
-                                </XStack>
-                                <XStack gap="$2" alignItems="center">
-                                    <FontAwesome6 name="angle-right" size={20} color="black"/>
-                                </XStack>
-                            </XStack>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={maintainWarning}>
-                            <XStack alignItems="center" justifyContent="space-between" gap="$4">
-                                <XStack alignItems="center" gap="$4">
-                                    <View style={style.box_icon}>
-                                        <Feather name="server" size={18} color="black" />
-                                    </View>
-                                    <Paragraph lineHeight={18} maxWidth={200}>Virtual Private Server (Máy chủ riêng ảo)</Paragraph>
+                                    <Paragraph maxWidth={250} lineHeight={18}>Bảo vệ số dư âm</Paragraph>
                                 </XStack>
                                 <XStack gap="$2" alignItems="center">
                                     <FontAwesome6 name="angle-right" size={20} color="black"/>
@@ -191,7 +178,7 @@ export default function InfoScreen() {
 
                     <Paragraph fontWeight={700} fontSize={20} marginVertical={16}>Hỗ trợ</Paragraph>
                     <YStack gap="$4">
-                        <TouchableOpacity onPress={maintainWarning}>
+                        <TouchableOpacity onPress={() => router.push('/(app)/(info)/support/support')}>
                             <XStack alignItems="center" justifyContent="space-between" gap="$4" flex={1}>
                                 <XStack alignItems="center" gap="$4">
                                     <View style={style.box_icon}>

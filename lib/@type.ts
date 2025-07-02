@@ -1,3 +1,5 @@
+import DefaultColor from "@/components/ui/DefaultColor";
+
 /**
  * Auth types
  */
@@ -71,3 +73,18 @@ export enum _SupportTicketPriority {
     MEDIUM = 2,
     HIGH = 3,
 }
+
+export const PRIORITY_CONFIG = {
+    [_SupportTicketPriority.LOW]: {
+        text: 'Thấp',
+        color: DefaultColor.green[200],
+    },
+    [_SupportTicketPriority.MEDIUM]: {
+        text: 'Trung bình',
+        color: DefaultColor.yellow[200],
+    },
+    [_SupportTicketPriority.HIGH]: {
+        text: 'Cao',
+        color: DefaultColor.red[200],
+    },
+};

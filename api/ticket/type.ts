@@ -13,9 +13,21 @@ export interface Ticket {
     created_at: string;
 }
 
-export type ListTicketResponse  = {
-    message: string;
+export type ListTicketRequest = {
+    keyword?: string;
+    status?: _SupportTicketStatus | '';
+    per_page?: number;
+    page?: number;
+}
+
+export type ListTicketResponse = {
     data: Ticket[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
 export type CreateTicketRequest = {
