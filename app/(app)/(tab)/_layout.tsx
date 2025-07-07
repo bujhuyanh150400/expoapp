@@ -7,7 +7,7 @@ import {FontAwesome6, Ionicons, MaterialCommunityIcons} from "@expo/vector-icons
 
 export const appTabStyle = StyleSheet.create({
     tabBarStyle: {
-        backgroundColor: 'transparent',
+        backgroundColor: DefaultColor.white,
         position: 'absolute',
         bottom: 0,
         left: 0,

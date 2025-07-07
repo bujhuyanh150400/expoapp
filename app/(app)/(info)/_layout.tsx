@@ -36,6 +36,9 @@ export default function InfoLayout() {
             <Stack.Screen name="support/support" options={{
                 header: () => <HeaderBack/>,
             }} />
+            <Stack.Screen name="support/reply" options={{
+                header: () => <HeaderBack/>,
+            }} />
             <Stack.Screen name="support/create/stepOne" options={{
                 header: () => <HeaderBack/>,
             }} />

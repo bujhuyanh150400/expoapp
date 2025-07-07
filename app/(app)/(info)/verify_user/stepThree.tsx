@@ -7,7 +7,6 @@ import {useDisableBackGesture} from "@/lib/hooks/useDisableBackGesture";
 import {Button, Paragraph, Spinner, XStack, YStack} from "tamagui";
 import useVerifyAccountUserStore from "@/lib/store/verifyAccountUserStore";
 import {useMutation} from "@tanstack/react-query";
-import {LoginRequest} from "@/api/auth/type";
 import authAPI from "@/api/auth";
 import {router} from "expo-router";
 import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";

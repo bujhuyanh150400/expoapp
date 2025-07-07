@@ -225,7 +225,7 @@ export default function SupportScreen() {
                     {isFetchingNextPage && (
                         <ActivityIndicator style={{ marginVertical: 12 }} />
                     )}
-                    {flatData && flatData.length > 0 && flatData.map((item, index) => (
+                    {!isLoading && flatData && flatData.length > 0 && flatData.map((item, index) => (
                         <TouchableOpacity
                             key={index}
                             style={{
@@ -234,7 +234,12 @@ export default function SupportScreen() {
                                 paddingVertical: 8,
                             }}
                             onPress={() => {
-
+                                router.push({
+                                    pathname: '/(app)/(info)/support/reply',
+                                    params: {
+                                        ticket_id: item.id
+                                    }
+                                })
                             }}
                         >
                             <XStack justifyContent="space-between" alignItems="center">
@@ -248,8 +253,8 @@ export default function SupportScreen() {
                                                 }]}
                                             >
                                                 <Paragraph fontSize={12}>
-                                                    {item.status === _SupportTicketStatus.OPEN && "Đang mở"}
-                                                    {item.status === _SupportTicketStatus.CLOSED && "Đóng"}
+                                                    {item.status === _SupportTicketStatus.OPEN && "Open"}
+                                                    {item.status === _SupportTicketStatus.CLOSED && "Close"}
                                                 </Paragraph>
                                             </View>
                                             <View
@@ -276,7 +281,7 @@ export default function SupportScreen() {
                                         </XStack>
                                     </YStack>
                                 </XStack>
-                                <FontAwesome6 name="arrow-right-to-bracket" size={18} color="#7D7D7D"/>
+                                <FontAwesome6 name="message" size={18} color={DefaultColor.slate[600]} />
                             </XStack>
                         </TouchableOpacity>
                     ))}

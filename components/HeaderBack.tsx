@@ -2,8 +2,11 @@ import DefaultColor from "@/components/ui/DefaultColor";
 import {TouchableOpacity, View} from "react-native";
 import {router} from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HeaderBack(){
+
+    const insets = useSafeAreaInsets();
     return (
         <View
             style={{
@@ -11,7 +14,8 @@ export default function HeaderBack(){
                 flexDirection: 'row',
                 alignItems: 'center',
                 paddingHorizontal: 10,
-                paddingTop: 30,
+                paddingTop: insets.top, // 👈 dùng đúng top inset
+                paddingBottom: 10, // tuỳ ý thêm padding dưới
             }}
         >
             <TouchableOpacity

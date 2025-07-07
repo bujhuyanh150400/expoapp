@@ -76,18 +76,22 @@ export default function EnterPinScreen() {
                 {text: "Huỷ", style: "cancel"},
                 {text: "Đồng ý",
                     onPress: async () => {
+                        let checkAuthBiometric = true;
                         try {
-                            const auth = await LocalAuthentication.authenticateAsync({
-                                promptMessage:
-                                    hasBiometrics
-                                        ? "Dùng vân tay hoặc nhận diện khuôn mặt để xác thực"
-                                        : "Nhập mã PIN của bạn",
-                                fallbackLabel: "Dùng mật khẩu PIN",
-                                cancelLabel: "Hủy bỏ",
-                                disableDeviceFallback: false,
-                            });
+                            if (hasBiometrics) {
+                                const auth = await LocalAuthentication.authenticateAsync({
+                                    promptMessage:
+                                        hasBiometrics
+                                            ? "Dùng vân tay hoặc nhận diện khuôn mặt để xác thực"
+                                            : "Nhập mã PIN của bạn",
+                                    fallbackLabel: "Dùng mật khẩu PIN",
+                                    cancelLabel: "Hủy bỏ",
+                                    disableDeviceFallback: false,
+                                });
+                                checkAuthBiometric = auth.success;
+                            }
 
-                            if (auth.success) {
+                            if (checkAuthBiometric) {
                                 await login(pin);
                                 router.replace('/(app)/(tab)');
                             }else{
