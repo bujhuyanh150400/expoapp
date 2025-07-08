@@ -36,6 +36,11 @@ export type CreateTicketRequest = {
     priority: _SupportTicketPriority
 }
 
+export type TicketThreadRequest = {
+    ticket_id: number;
+    page?: number;
+}
+
 export type ReplyTicketRequest = {
     message: string;
     id: number;
