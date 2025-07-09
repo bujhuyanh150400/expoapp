@@ -2,24 +2,19 @@ import {ReactNode, useRef, useState} from "react";
 import {
     Animated,
     StyleSheet,
-    Text,
     View,
     NativeSyntheticEvent,
     NativeScrollEvent,
 } from 'react-native';
 import {FocusAwareStatusBar} from "@/components/FocusAwareStatusBar";
-import {H3, H6, ViewStyle} from "tamagui";
+import {H6, ViewStyle} from "tamagui";
 import {StyleProp} from "@tamagui/web";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function LayoutScrollApp({children, title, style}: { children: ReactNode, title?: string, style?: StyleProp<ViewStyle> }) {
     const scrollY = useRef(new Animated.Value(0)).current;
     const [showHeader, setShowHeader] = useState<boolean>(false);
-    // Dùng interpolate để tạo hiệu ứng fade
-    const headerOpacity = scrollY.interpolate({
-        inputRange: [20, 50], // Từ 0 đến 50px scroll
-        outputRange: [0, 1], // Từ trong suốt đến hiện rõ
-        extrapolate: 'clamp',
-    });
+    const insets = useSafeAreaInsets();
     const handleScroll = Animated.event(
         [{nativeEvent: {contentOffset: {y: scrollY}}}],
         {
@@ -36,7 +31,7 @@ export default function LayoutScrollApp({children, title, style}: { children: Re
             <Animated.ScrollView
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
-                contentContainerStyle={{padding: 20}}
+                contentContainerStyle={{padding: 20, paddingTop: insets.top > 0 ? insets.top : 20}}
                 style={style as any}
             >
                 {title && <H6 paddingVertical={12} fontWeight={700}>{title}</H6>}
