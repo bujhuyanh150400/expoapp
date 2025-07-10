@@ -1,23 +1,36 @@
-import React from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View, ViewStyle} from 'react-native';
+import React, {useRef} from 'react';
+import {
+    Dimensions,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+    ViewStyle,
+    findNodeHandle,
+    UIManager
+} from 'react-native';
 import DefaultColor from "@/components/ui/DefaultColor";
 
-type TabItem = {
-    key: string;
+type TabRender<T extends string | number> = {
+    key: T;
     item: (isActive: boolean) => React.ReactNode;
 };
 
-type Props = {
-    tabs: TabItem[];
-    activeKey: string;
-    onTabPress: (key: string) => void;
+type Props<T extends string | number> = {
+    tabs: TabRender<T>[];
+    activeKey: T;
+    onTabPress: (key: T) => void;
     style?: ViewStyle;
 };
 
-const HorizontalTabBar: React.FC<Props> = ({ tabs, activeKey, onTabPress, style }) => {
+function HorizontalTabBar<T extends string | number>({tabs, activeKey, onTabPress, style}: Props<T>) {
+    const scrollRef = useRef<ScrollView>(null);
+    const tabRefs = useRef<Map<string, View>>(new Map());
+
     return (
         <ScrollView
             horizontal
+            ref={scrollRef}
             showsHorizontalScrollIndicator={false}
             style={[styles.tabContainer, style]}
         >
@@ -25,29 +38,62 @@ const HorizontalTabBar: React.FC<Props> = ({ tabs, activeKey, onTabPress, style 
                 const isActive = tab.key === activeKey;
                 return (
                     <TouchableOpacity
-                        key={tab.key}
-                        onPress={() => onTabPress(tab.key)}
+                        key={tab.key as string}
                         style={[styles.tabItem, isActive && styles.tabItemActive]}
+                        onPress={() => {
+                            onTabPress(tab.key)
+                            const tabRef = tabRefs.current.get(tab.key as string);
+                            if (tabRef && scrollRef.current) {
+                                const tabNode = findNodeHandle(tabRef);
+                                const scrollNode = findNodeHandle(scrollRef.current);
+
+                                if (tabNode && scrollNode) {
+                                    UIManager.measureLayout(
+                                        tabNode,
+                                        scrollNode,
+                                        () => console.warn('measure failed'),
+                                        (x, y, width) => {
+                                            const screenWidth = Dimensions.get('window').width;
+                                            const scrollToX = x + width / 2 - screenWidth / 2;
+
+                                            scrollRef.current?.scrollTo({
+                                                x: Math.max(0, scrollToX),
+                                                animated: true,
+                                            });
+                                        }
+                                    );
+                                }
+                            }
+                        }}
                     >
-                        {tab.item(isActive)}
+                        <View
+                            ref={(ref) => {
+                                if (ref) tabRefs.current.set(tab.key as string, ref);
+                            }}
+                        >
+                            {tab.item(isActive)}
+                        </View>
                     </TouchableOpacity>
                 );
             })}
         </ScrollView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderColor: DefaultColor.slate[300],
-        backgroundColor: '#fff',
+        backgroundColor: DefaultColor.white,
     },
     tabItem: {
-        flex: 1,
-        padding: 10,
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        marginHorizontal: 4,
         alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 80, // Đảm bảo không quá bé, nhưng không ép full
     },
     tabItemActive: {
         borderBottomWidth: 1,
@@ -57,8 +103,8 @@ const styles = StyleSheet.create({
         color: DefaultColor.slate[300],
     },
     tabTextActive: {
-        color: '#000',
-        fontWeight: '600',
+        color: DefaultColor.black,
+        fontWeight: 700,
     },
 });
 
