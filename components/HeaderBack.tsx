@@ -1,11 +1,10 @@
 import DefaultColor from "@/components/ui/DefaultColor";
 import {TouchableOpacity, View} from "react-native";
-import {router} from "expo-router";
+import {Href, router} from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function HeaderBack(){
-
+export default function HeaderBack({routerBack} :{ routerBack?: Href}){
     const insets = useSafeAreaInsets();
     return (
         <View
@@ -19,7 +18,13 @@ export default function HeaderBack(){
             }}
         >
             <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => {
+                    if (routerBack) {
+                        router.replace(routerBack)
+                    }else {
+                        router.back();
+                    }
+                }}
                 style={{
                     padding: 8,
                     borderRadius: 100,

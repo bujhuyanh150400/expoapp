@@ -1,5 +1,5 @@
 import {TouchableOpacity, View} from "react-native";
-import {Card, H6, Paragraph, XStack, YStack} from "tamagui";
+import {Card, H6, Paragraph, Sheet, XStack, YStack} from "tamagui";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useState} from "react";
 import DefaultColor from "@/components/ui/DefaultColor";
@@ -8,6 +8,7 @@ import {_AssetType} from "@/lib/@type";
 import {AntDesign, FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
 import LayoutScrollApp from "@/components/LayoutScrollApp";
+import {router} from "expo-router";
 
 const listData = [
     {
@@ -115,170 +116,173 @@ const listData = [
 export default function TradeListScreen() {
     const insets = useSafeAreaInsets();
     const [activeTab, setActiveTab] = useState<_AssetType>(_AssetType.FAVORITE);
-    return (
-        <LayoutScrollApp style={{marginBottom: insets.bottom + 40}}>
-            <XStack
-                alignItems={"center"}
-                justifyContent={"space-between"}
-                gap={"$2"}
-                paddingHorizontal={"$2"}
-            >
-                <H6 paddingVertical={12} fontWeight={700}>Giao dịch</H6>
-                <TouchableOpacity>
-                    <FontAwesome5 name="search" size={20} color="black" />
-                </TouchableOpacity>
-            </XStack>
-            <HorizontalTabBar<_AssetType>
-                tabs={[
-                    {
-                        key: _AssetType.FAVORITE,
-                        item: (isActive) => (
-                            <View style={{
-                                alignItems:"center",
-                                gap: 4,
-                                flexDirection:"row"
-                            }}
-                            >
-                                <AntDesign name="staro" size={16} color={
-                                    isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
-                                } />
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Yêu thích
-                                </Paragraph>
-                            </View>
-                        ),
-                    },
-                    {
-                        key: _AssetType.CRYPTO,
-                        item: (isActive) => (
-                            <View style={{
-                                alignItems:"center",
-                                gap: 4,
-                                flexDirection:"row"
-                            }}
-                            >
-                                <FontAwesome5 name="coins" size={16} color={
-                                    isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
-                                } />
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Crypto
-                                </Paragraph>
-                            </View>
-                        ),
-                    },
-                    {
-                        key: _AssetType.METAL,
-                        item: (isActive) => (
-                            <View style={{
-                                alignItems:"center",
-                                gap: 4,
-                                flexDirection:"row"
-                            }}
-                            >
-                                <FontAwesome6 name="wand-magic-sparkles" size={16} color={
-                                    isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
-                                } />
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Kim loại
-                                </Paragraph>
-                            </View>
-                        ),
-                    },
-                    {
-                        key: _AssetType.ENERGY,
-                        item: (isActive) => (
-                            <View style={{
-                                alignItems:"center",
-                                gap: 4,
-                                flexDirection:"row"
-                            }}
-                            >
-                                <FontAwesome6 name="oil-well" size={16} color={
-                                    isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
-                                } />
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Dầu khí & năng lượng
-                                </Paragraph>
-                            </View>
-                        ),
-                    }
-                ]}
-                activeKey={activeTab}
-                onTabPress={setActiveTab}
-            />
-            <YStack marginTop={"$4"} gap={"$2"}>
-                {activeTab === _AssetType.FAVORITE && (
-                    <XStack>
-                        <TouchableOpacity style={{
-                            paddingHorizontal:10,
-                            paddingVertical: 2,
-                            borderRadius: 20,
-                            backgroundColor:DefaultColor.slate[200],
-                            flexDirection:"row",
-                            gap:"4",
-                            alignItems:"center"
-                        }}>
-                            <Paragraph fontWeight={500}>Chỉnh sửa</Paragraph>
-                            <FontAwesome5 name="edit" size={14} color="black" />
-                        </TouchableOpacity>
-                    </XStack>
-                )}
-                {listData.map((item, index) => (
-                    <TouchableOpacity
-                        key={index}
-                    >
-                        <Card bordered paddingHorizontal={"$3"} paddingVertical={"$2"} marginVertical={"$2"} backgroundColor={DefaultColor.white}>
-                            <XStack alignItems={"flex-start"} justifyContent={"space-between"} gap={"$2"}>
-                                {/*symbol and info*/}
-                                <YStack gap={"$2"}>
-                                    <XStack alignItems={"flex-start"} justifyContent={"flex-start"} gap={"$2"}>
-                                        <SymbolAssetIcons
-                                            symbol={item.symbol}
-                                            currency_base={item.currency_base}
-                                            currency_quote={item.currency_quote}
-                                            size={18}
-                                        />
-                                        <Paragraph fontSize={16} fontWeight={700}>{item.symbol}</Paragraph>
-                                    </XStack>
-                                    <Paragraph fontSize={12} fontWeight={500} color={DefaultColor.slate[400]}>
-                                        {item.currency_base} vs {item.currency_quote}
-                                    </Paragraph>
-                                </YStack>
-                                <YStack gap={"$2"} alignItems={"flex-end"}>
-                                    <Paragraph fontSize={14} fontWeight={700} color={DefaultColor.black}>
-                                        {item.price}
-                                    </Paragraph>
-                                    <Paragraph fontSize={14} fontWeight={700} color={item.status === "up" ? DefaultColor.green[400] : DefaultColor.red[400]}>
-                                        {item.status === "up" ? "+" : "-"}
-                                        {item.percent} %
-                                    </Paragraph>
-                                </YStack>
-                            </XStack>
 
-                        </Card>
+    return (
+        <>
+            <LayoutScrollApp style={{marginBottom: insets.bottom + 40}}>
+                <XStack
+                    alignItems={"center"}
+                    justifyContent={"space-between"}
+                    gap={"$2"}
+                    paddingHorizontal={"$2"}
+                >
+                    <H6 paddingVertical={12} fontWeight={700}>Giao dịch</H6>
+                    <TouchableOpacity onPress={() => router.push("/(app)/(trade)/search")}>
+                        <FontAwesome5 name="search" size={20} color="black" />
                     </TouchableOpacity>
-                ))}
-            </YStack>
-        </LayoutScrollApp>
+                </XStack>
+                <HorizontalTabBar<_AssetType>
+                    tabs={[
+                        {
+                            key: _AssetType.FAVORITE,
+                            item: (isActive) => (
+                                <View style={{
+                                    alignItems:"center",
+                                    gap: 4,
+                                    flexDirection:"row"
+                                }}
+                                >
+                                    <AntDesign name="staro" size={16} color={
+                                        isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
+                                    } />
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Yêu thích
+                                    </Paragraph>
+                                </View>
+                            ),
+                        },
+                        {
+                            key: _AssetType.CRYPTO,
+                            item: (isActive) => (
+                                <View style={{
+                                    alignItems:"center",
+                                    gap: 4,
+                                    flexDirection:"row"
+                                }}
+                                >
+                                    <FontAwesome5 name="coins" size={16} color={
+                                        isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
+                                    } />
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Crypto
+                                    </Paragraph>
+                                </View>
+                            ),
+                        },
+                        {
+                            key: _AssetType.METAL,
+                            item: (isActive) => (
+                                <View style={{
+                                    alignItems:"center",
+                                    gap: 4,
+                                    flexDirection:"row"
+                                }}
+                                >
+                                    <FontAwesome6 name="wand-magic-sparkles" size={16} color={
+                                        isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
+                                    } />
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Kim loại
+                                    </Paragraph>
+                                </View>
+                            ),
+                        },
+                        {
+                            key: _AssetType.ENERGY,
+                            item: (isActive) => (
+                                <View style={{
+                                    alignItems:"center",
+                                    gap: 4,
+                                    flexDirection:"row"
+                                }}
+                                >
+                                    <FontAwesome6 name="oil-well" size={16} color={
+                                        isActive ? DefaultColor.yellow[600] : DefaultColor.slate[300]
+                                    } />
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Dầu khí & năng lượng
+                                    </Paragraph>
+                                </View>
+                            ),
+                        }
+                    ]}
+                    activeKey={activeTab}
+                    onTabPress={setActiveTab}
+                />
+                <YStack marginTop={"$4"} gap={"$2"}>
+                    {activeTab === _AssetType.FAVORITE && (
+                        <XStack>
+                            <TouchableOpacity style={{
+                                paddingHorizontal:10,
+                                paddingVertical: 2,
+                                borderRadius: 20,
+                                backgroundColor:DefaultColor.slate[200],
+                                flexDirection:"row",
+                                gap:"4",
+                                alignItems:"center"
+                            }}>
+                                <Paragraph fontWeight={500}>Chỉnh sửa</Paragraph>
+                                <FontAwesome5 name="edit" size={14} color="black" />
+                            </TouchableOpacity>
+                        </XStack>
+                    )}
+                    {listData.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                        >
+                            <Card bordered paddingHorizontal={"$3"} paddingVertical={"$2"} marginVertical={"$2"} backgroundColor={DefaultColor.white}>
+                                <XStack alignItems={"flex-start"} justifyContent={"space-between"} gap={"$2"}>
+                                    {/*symbol and info*/}
+                                    <YStack gap={"$2"}>
+                                        <XStack alignItems={"flex-start"} justifyContent={"flex-start"} gap={"$2"}>
+                                            <SymbolAssetIcons
+                                                symbol={item.symbol}
+                                                currency_base={item.currency_base}
+                                                currency_quote={item.currency_quote}
+                                                size={18}
+                                            />
+                                            <Paragraph fontSize={16} fontWeight={700}>{item.symbol}</Paragraph>
+                                        </XStack>
+                                        <Paragraph fontSize={12} fontWeight={500} color={DefaultColor.slate[400]}>
+                                            {item.currency_base} vs {item.currency_quote}
+                                        </Paragraph>
+                                    </YStack>
+                                    <YStack gap={"$2"} alignItems={"flex-end"}>
+                                        <Paragraph fontSize={14} fontWeight={700} color={DefaultColor.black}>
+                                            {item.price}
+                                        </Paragraph>
+                                        <Paragraph fontSize={14} fontWeight={700} color={item.status === "up" ? DefaultColor.green[400] : DefaultColor.red[400]}>
+                                            {item.status === "up" ? "+" : "-"}
+                                            {item.percent} %
+                                        </Paragraph>
+                                    </YStack>
+                                </XStack>
+
+                            </Card>
+                        </TouchableOpacity>
+                    ))}
+                </YStack>
+            </LayoutScrollApp>
+        </>
     );
 }

@@ -31,3 +31,26 @@ export type AssetTradingListResponse = {
         total: number;
     };
 };
+
+export type Symbol = {
+    'id': number,
+    'symbol': string,
+    'currency_base': string,
+    'currency_quote': string,
+    'type': _AssetType
+}
+
+export type SearchSymbolRequest = {
+    keyword?:string;
+    page?: number;
+}
+
+export type SearchSymbolResponse = {
+    data: Symbol[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}
