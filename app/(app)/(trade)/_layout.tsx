@@ -1,6 +1,7 @@
 import {Stack} from "expo-router";
 import DefaultColor from "@/components/ui/DefaultColor";
 import HeaderBack from "@/components/HeaderBack";
+import {HeaderEditFavoriteScreen} from "@/app/(app)/(trade)/editFavorite";
 
 export default function TradeLayout () {
     return (
@@ -16,7 +17,10 @@ export default function TradeLayout () {
                 header: () => <HeaderBack />,
             }} />
             <Stack.Screen name="editFavorite" options={{
-                header: () => <HeaderBack />,
+                header: () => <HeaderEditFavoriteScreen routerBack={"/(app)/(tab)/trade"} />,
+            }} />
+            <Stack.Screen name="addFavorite" options={{
+                header: () => <HeaderBack routerBack={"/(app)/(trade)/editFavorite"} />,
             }} />
         </Stack>
     )

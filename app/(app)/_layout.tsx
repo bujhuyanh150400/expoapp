@@ -5,6 +5,7 @@ import {_AuthStatus} from "@/lib/@type";
 import DefaultColor from "@/components/ui/DefaultColor";
 import useAppStore from "@/lib/store/appStore";
 import FullScreenLoading from "@/components/FullScreenLoading";
+import {WebSocketProvider} from "@/api/socket/provider";
 
 export default function AppLayout() {
     const status = useAuthStore(state => state.status);
@@ -18,7 +19,7 @@ export default function AppLayout() {
 
 
     return (
-        <>
+        <WebSocketProvider>
             <FullScreenLoading loading={loading} />
             <Stack
                 initialRouteName="(tab)"
@@ -32,6 +33,6 @@ export default function AppLayout() {
                 <Stack.Screen name="(info)"/>
                 <Stack.Screen name="(trade)"/>
             </Stack>
-        </>
+        </WebSocketProvider>
     )
 }

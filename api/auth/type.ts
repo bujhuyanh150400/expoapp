@@ -19,6 +19,7 @@ export type UserLogin = {
     address: string;
     country: string;
     dob: string;
+    secret:string;
     gender: 'male' | 'female' | 'other';
     money: number;
     status: _VerifyUserStatus;

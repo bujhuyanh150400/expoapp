@@ -55,7 +55,6 @@ export default function AddStepFourScreen() {
             router.replace('/(app)/(tab)');
         },
         onError: (error) => {
-            console.log(error)
             useShowErrorHandler(error);
         }
     })

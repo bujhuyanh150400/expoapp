@@ -1,7 +1,5 @@
 import AnimatedTabsLayout, {TabItem} from "@/components/AnimatedTabsLayout";
-import {Button, Card, H4, H6, Paragraph, Sheet, XStack, YStack} from "tamagui";
-import accountAPI from "@/api/account";
-import {useQuery} from "@tanstack/react-query";
+import {Button, Card, H4, H6, Paragraph,  XStack, YStack} from "tamagui";
 import {useEffect} from "react";
 import {showMessage} from "react-native-flash-message";
 import LayoutScrollApp from "@/components/LayoutScrollApp";

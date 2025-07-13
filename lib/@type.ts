@@ -44,7 +44,7 @@ export enum _AssetType {
     CRYPTO = 1,
     ENERGY = 2,
     METAL = 3,
-    FAVORITE = 4,
+    FAVORITE = 5,
 }
 
 export enum _TradeType {
