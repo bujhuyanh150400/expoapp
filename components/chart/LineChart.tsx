@@ -157,9 +157,13 @@ const XAxisLabels = ({timeType} :{timeType?: 'day' | 'hour'}) => {
     );
 };
 
-type PropLineChart = { data: LineChartType[] , timeFrame?: _Timeframe };
+type PropLineChart = {
+    data: LineChartType[] ,
+    timeFrame?: _Timeframe,
+    height?:number
+};
 
-const LineChart : FC<PropLineChart>= ({data, timeFrame}) => {
+const LineChart : FC<PropLineChart>= ({data, timeFrame, height}) => {
     const [timeType, setTimeType] = useState<'day' | 'hour'>('hour');
 
     useEffect(() => {
@@ -192,7 +196,7 @@ const LineChart : FC<PropLineChart>= ({data, timeFrame}) => {
                     contentContainerStyle={{ width: chartWidth }}
                 >
                     <View style={{width: chartWidth}}>
-                        <LineChartWagmi height={200} width={chartWidth - 130}>
+                        <LineChartWagmi height={height ?? 200} width={chartWidth - 130}>
                             <YAxisLabels />
                             <LineChartWagmi.Path pathProps={{strokeWidth: 1}}>
                                 <LineChartWagmi.Dot size={3} at={data.length - 1} />

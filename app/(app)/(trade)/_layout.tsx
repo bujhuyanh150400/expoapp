@@ -11,7 +11,7 @@ export default function TradeLayout () {
             }}
         >
             <Stack.Screen name="trading" options={{
-                header: () => <HeaderBack />,
+                headerShown: false,
             }} />
             <Stack.Screen name="search" options={{
                 header: () => <HeaderBack />,

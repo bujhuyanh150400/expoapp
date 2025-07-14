@@ -30,6 +30,14 @@ export enum _Timeframe {
     OneDay = '1day',
     OneWeek = '1week',
 }
+export const TIME_FRAME_SELECT = [
+    {label: '1 phút', value: _Timeframe.OneMinute},
+    {label: '30 phút', value: _Timeframe.ThirtyMinutes},
+    {label: '45 phút', value: _Timeframe.FortyFiveMinutes},
+    {label: '1 giờ', value: _Timeframe.OneHour},
+    {label: '1 ngày', value: _Timeframe.OneDay},
+    {label: '1 tuần', value: _Timeframe.OneWeek},
+];
 
 /**
  * Verìfy user status types

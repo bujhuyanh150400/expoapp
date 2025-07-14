@@ -4,7 +4,7 @@ import {_Timeframe} from "@/lib/@type";
 export type TimeSeriesRequest = {
     symbol: string,
     interval: _Timeframe,
-    outputSize: number,
+    outputsize: number,
     order: 'ASC' | 'DESC',
     startDate?: string,
     endDate?: string
@@ -23,11 +23,11 @@ export type TimeSeriesResponse = {
         currencyQuote: string;
         type: string;
     };
-    values: CandleItem[];
+    values: TimeSeriesItem[];
     status: string;
 };
 
-export type CandleItem = {
+export type TimeSeriesItem = {
     datetime: {
         date: string; // ISO format "2025-07-14 10:37:00.000000"
         timezone_type: number;

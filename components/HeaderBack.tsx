@@ -1,13 +1,14 @@
 import DefaultColor from "@/components/ui/DefaultColor";
-import {TouchableOpacity, View} from "react-native";
+import {LayoutChangeEvent, TouchableOpacity, View} from "react-native";
 import {Href, router} from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function HeaderBack({routerBack} :{ routerBack?: Href}){
+export default function HeaderBack({routerBack, onLayout} :{ routerBack?: Href, onLayout?: (e: LayoutChangeEvent) => void}){
     const insets = useSafeAreaInsets();
     return (
         <View
+            onLayout={onLayout}
             style={{
                 backgroundColor: DefaultColor.white,
                 flexDirection: 'row',
