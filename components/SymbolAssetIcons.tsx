@@ -36,22 +36,25 @@ const ICONS: Record<string, any> = {
     thailand: require('@/assets/images/symbol/thailand.png'),
     oil: require('@/assets/images/symbol/oil-barrel.png'),
     gas: require('@/assets/images/symbol/gas-fuel.png'),
+    bnb: require('@/assets/images/symbol/bnb.png'),
 };
 
 const KEYWORD_MAP: Record<string, string> = {
     'crudeoil': 'oil',
     'brent': 'oil',
     'naturalgas': 'gas',
+    'gasoline':'gas',
     'gas': 'gas',
     'gold': 'xau',
+    'gau': 'xau',
+    'xagg':'xag',
     'silver': 'xag',
     'bitcoin': 'btc',
     'ethereum': 'eth',
     'tether': 'usdt',
     'usdt': 'usdt',
     'usdc': 'usdt',
-
-    // fiat
+    'bnb':'bnb',
     'usd': 'usd',
     'us dollar': 'usd',
     'unitedstates': 'usd',
@@ -84,15 +87,23 @@ type PropsSymbolIcon= {
 };
 
 const normalize = (str: string): string =>
-    str.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    str.trim().toLowerCase();
 
 const getIconFromKeywords = (keywords: (string | undefined)[]): any => {
     for (const k of keywords) {
         if (!k) continue;
-        const norm = normalize(k);
-        const mapped = KEYWORD_MAP[norm] || norm;
-        if (ICONS[mapped]) return ICONS[mapped];
+        // Normalize và split thành các từ nhỏ
+        const words = normalize(k).split(/[\s\-]+/); // tách theo dấu cách/gạch ngang
+        for (const word of words) {
+            const mapped = KEYWORD_MAP[word] || word;
+            if (ICONS[mapped]) return ICONS[mapped];
+        }
+
+        // Nếu nguyên cụm map được thì vẫn thử lần cuối
+        const mappedFull = KEYWORD_MAP[normalize(k)] || normalize(k);
+        if (ICONS[mappedFull]) return ICONS[mappedFull];
     }
+
     return null;
 };
 const SymbolIcon: React.FC<PropsSymbolIcon> = ({ keyword, keywordOptions, size = 24, style }) => {
@@ -144,7 +155,6 @@ const parseSymbol = (symbol: string): { base: string; quote: string } => {
 
 const SymbolAssetIcons: React.FC<PropsAssetIcons> = ({ symbol, currency_base, currency_quote, size = 20 }) => {
     const { base, quote } = parseSymbol(symbol);
-
     return (
         <View style={{
             alignItems:"center",

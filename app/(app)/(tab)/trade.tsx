@@ -217,8 +217,6 @@ export default function TradeListScreen() {
                                             gap: "4",
                                             alignItems: "center"
                                         }}
-
-
                                     >
                                         <Paragraph fontWeight={500}>Chỉnh sửa</Paragraph>
                                         <FontAwesome5 name="edit" size={14} color="black"/>
@@ -228,6 +226,7 @@ export default function TradeListScreen() {
                             {listDataRealtimePrice.map((item,index) => (
                                 <TouchableOpacity
                                     key={index}
+                                    onPress={() => router.push("/(app)/(trade)/trading")}
                                 >
                                     <Card bordered paddingHorizontal={"$3"} paddingVertical={"$2"} marginVertical={"$2"}
                                           backgroundColor={DefaultColor.white}>
@@ -261,7 +260,6 @@ export default function TradeListScreen() {
                                                 }
                                             </YStack>
                                         </XStack>
-
                                     </Card>
                                 </TouchableOpacity>
                             ))}

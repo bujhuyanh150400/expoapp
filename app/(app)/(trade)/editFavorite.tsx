@@ -112,7 +112,7 @@ export default function EditFavoriteScreen() {
                                     <SymbolAssetIcons
                                         symbol={item.symbol}
                                         currency_base={item.currency_base}
-                                        currency_quote={item.currency_quote}
+                                        currency_quote={item.currency_quote ?? ""}
                                         size={18}
                                     />
                                     <Paragraph fontSize={16} fontWeight={700}>{item.symbol}</Paragraph>
