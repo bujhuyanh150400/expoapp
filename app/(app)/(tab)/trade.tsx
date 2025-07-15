@@ -69,6 +69,7 @@ export default function TradeListScreen() {
         refetch();
     }, [activeTab]);
 
+
     return (
         <>
             <LayoutScrollApp style={{marginBottom: insets.bottom + 40}}>

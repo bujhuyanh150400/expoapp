@@ -5,7 +5,7 @@ import {Paragraph, XStack, YStack} from "tamagui";
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
 import DefaultColor from "@/components/ui/DefaultColor";
 import {dataTest} from "@/test/trading";
-import {formatDataLineChart} from "@/lib/utils";
+import {calculateBidAskSpread, formatDataLineChart} from "@/lib/utils";
 import LineChart from "@/components/chart/LineChart";
 import HeaderBack from "@/components/HeaderBack";
 import useNestedState from "@/lib/hooks/useNestedState";
@@ -19,10 +19,10 @@ import assetTradingAPI from "@/api/asset_trading";
 import {showMessage} from "react-native-flash-message";
 import SkeletonFade from "@/components/SkeletonFade";
 import CandleChart from "@/components/chart/CandleChart";
-import {CandleChartType, LineChartType} from "@/components/chart/type";
 
 const TIME_FRAME_SELECT = [
     {label: '1 phút', unit: "1m", value: _Timeframe.OneMinute},
+    {label: '5 phút', unit: "5m", value: _Timeframe.FiveMinute},
     {label: '30 phút', unit: "30m", value: _Timeframe.ThirtyMinutes},
     {label: '45 phút', unit: "45m", value: _Timeframe.FortyFiveMinutes},
     {label: '1 giờ', unit: "1h", value: _Timeframe.OneHour},
@@ -31,7 +31,11 @@ const TIME_FRAME_SELECT = [
 ];
 const TYPE_CHART_SELECT = [
     {label: 'Đường', unit: <FontAwesome6 name="chart-line" size={16} color="black"/>, value: _TypeChart.LINE},
-    {label: 'Biểu đồ nến', unit: <MaterialIcons name="candlestick-chart" size={16} color="black"/>, value: _TypeChart.CANDLE},
+    {
+        label: 'Biểu đồ nến',
+        unit: <MaterialIcons name="candlestick-chart" size={16} color="black"/>,
+        value: _TypeChart.CANDLE
+    },
 ]
 
 export default function TradingScreen() {
@@ -40,9 +44,10 @@ export default function TradingScreen() {
     const chartHeight = useMemo(() => height.container - height.header - height.footer - height.header, [height]);
 
     const {symbol} = useLocalSearchParams<{ symbol?: string }>();
-    const [filter,setFilter] = useNestedState({
-        timeframe: _Timeframe.OneMinute,
-        type_chart: _TypeChart.LINE,
+
+    const [filter, setFilter] = useNestedState({
+        timeframe: _Timeframe.FiveMinute,
+        type_chart: _TypeChart.CANDLE,
     });
 
     const queryItemSymbol = useQuery({
@@ -57,16 +62,21 @@ export default function TradingScreen() {
     })
 
 
-    const {dataChart, loading, priceRealtime, isError} = useTrading({
+    const {lineData, candleData, loading, priceRealtime, isError} = useTrading({
         symbol,
         interval: filter.timeframe,
-        type_chart: filter.type_chart,
     });
 
+    const {
+        bid,
+        ask,
+        spread
+    } = calculateBidAskSpread(priceRealtime.price, queryItemSymbol.data ? queryItemSymbol.data.spread : "");
+
     useEffect(() => {
-        if (queryItemSymbol.isError || isError){
+        if (queryItemSymbol.isError || isError) {
             showMessage({
-                type:"danger",
+                type: "danger",
                 message: "Có trục trặc kĩ thuật",
                 description: "Có lỗi xảy ra, vui lòng thử lại sau",
                 duration: 3000,
@@ -75,6 +85,12 @@ export default function TradingScreen() {
         }
     }, [queryItemSymbol.isError, isError]);
 
+    // set loading
+    const setLoading = useAppStore(state => state.setLoading);
+
+    useEffect(() => {
+        setLoading(queryItemSymbol.isLoading || queryItemSymbol.isRefetching || loading);
+    }, [queryItemSymbol.isLoading, queryItemSymbol.isRefetching, loading]);
     return (
         <>
             <HeaderBack onLayout={(e) => setHeight({header: e.nativeEvent.layout.height})}/>
@@ -98,7 +114,9 @@ export default function TradingScreen() {
                                     />
                                 }
                                 <YStack>
-                                    {queryItemSymbol.data ? <Paragraph fontSize={20} fontWeight={700}>{queryItemSymbol.data.symbol}</Paragraph> : <SkeletonFade/>}
+                                    {queryItemSymbol.data ? <Paragraph fontSize={20}
+                                                                       fontWeight={700}>{queryItemSymbol.data.symbol}</Paragraph> :
+                                        <SkeletonFade/>}
                                     {queryItemSymbol.data ? (
                                         <Paragraph fontSize={12} fontWeight={500} color={DefaultColor.slate[400]}
                                                    numberOfLines={1} maxWidth={200}>
@@ -113,10 +131,12 @@ export default function TradingScreen() {
                 </View>
 
                 {/*Chart*/}
-                {chartHeight > 0 && dataChart && dataChart.length > 0 && (
+                {chartHeight > 0 && !loading && (
                     <>
-                        {filter.type_chart === _TypeChart.CANDLE && <CandleChart data={dataChart as CandleChartType[]} timeFrame={filter.timeframe} />}
-                        {filter.type_chart === _TypeChart.LINE && <LineChart data={dataChart as LineChartType[]} height={chartHeight} />}
+                        {filter.type_chart === _TypeChart.CANDLE && candleData.length > 0 &&
+                            <CandleChart data={candleData} height={chartHeight} timeFrame={filter.timeframe}/>}
+                        {filter.type_chart === _TypeChart.LINE && lineData.length > 0 &&
+                            <LineChart data={lineData} height={chartHeight} timeFrame={filter.timeframe}/>}
                     </>
                 )}
 
@@ -125,45 +145,62 @@ export default function TradingScreen() {
                     onLayout={(e) => setHeight({footer: e.nativeEvent.layout.height})}
                 >
                     <YStack gap={"$4"} paddingTop={"$4"}>
-                        <XStack gap={"$2"}>
-                            <BottomSheetSelect
-                                options={TYPE_CHART_SELECT}
-                                value={filter.type_chart}
-                                snapPoints={[50]}
-                                onChange={(value) => {
-                                    const valueSelect = value as _TypeChart;
-                                    setFilter({type_chart: valueSelect})
-                                }}
-                            />
-                            <BottomSheetSelect
-                                options={TIME_FRAME_SELECT}
-                                value={filter.timeframe}
-                                snapPoints={[50]}
-                                onChange={(value) => {
-                                    const valueSelect = value as _Timeframe;
-                                    setFilter({timeframe: valueSelect})
-                                }}
-                            />
+                        <XStack alignItems={"center"} gap={"$4"} justifyContent={"space-between"}>
+                            <XStack gap={"$2"}>
+                                <BottomSheetSelect
+                                    options={TYPE_CHART_SELECT}
+                                    value={filter.type_chart}
+                                    snapPoints={[50]}
+                                    onChange={(value) => {
+                                        const valueSelect = value as _TypeChart;
+                                        setFilter({type_chart: valueSelect})
+                                    }}
+                                />
+                                <BottomSheetSelect
+                                    options={TIME_FRAME_SELECT}
+                                    value={filter.timeframe}
+                                    snapPoints={[50]}
+                                    onChange={(value) => {
+                                        const valueSelect = value as _Timeframe;
+                                        setFilter({timeframe: valueSelect})
+                                    }}
+                                />
+                                <View style={styles.open_close_container}>
+                                    <XStack alignItems={"center"} gap={"$2"}>
+                                        <Paragraph>Mở</Paragraph>
+                                        <View style={styles.open_close_badge}>
+                                            <Paragraph>0</Paragraph>
+                                        </View>
+                                    </XStack>
+                                    <XStack alignItems={"center"} gap={"$2"}>
+                                        <Paragraph>Đóng</Paragraph>
+                                        <View style={styles.open_close_badge}>
+                                            <Paragraph>0</Paragraph>
+                                        </View>
+                                    </XStack>
+                                </View>
+                            </XStack>
+
                         </XStack>
                         <View style={{
-                            position:"relative",
-                            width:"100%"
+                            position: "relative",
+                            width: "100%"
                         }}>
                             <XStack width={"100%"} gap={"$2"}>
                                 <TouchableOpacity style={[
-                                    styles.btn_trading, { backgroundColor: DefaultColor.red[500] }
+                                    styles.btn_trading, {backgroundColor: DefaultColor.red[500]}
                                 ]}>
                                     <Paragraph fontSize={14} fontWeight={500} color={"white"}>BÁN</Paragraph>
-                                    <Paragraph fontSize={18} fontWeight={500} color={"white"}>100000000</Paragraph>
+                                    <Paragraph fontSize={14} fontWeight={500} color={"white"}>{bid}</Paragraph>
                                 </TouchableOpacity>
                                 <View style={styles.spread}>
-                                    <Paragraph fontSize={12}>23,19</Paragraph>
+                                    <Paragraph fontSize={12}>{spread}</Paragraph>
                                 </View>
                                 <TouchableOpacity style={[
-                                    styles.btn_trading, { backgroundColor: DefaultColor.blue[500] }
+                                    styles.btn_trading, {backgroundColor: DefaultColor.blue[500]}
                                 ]}>
                                     <Paragraph fontSize={14} fontWeight={500} color={"white"}>MUA</Paragraph>
-                                    <Paragraph fontSize={18} fontWeight={500} color={"white"}>100000000</Paragraph>
+                                    <Paragraph fontSize={14} fontWeight={500} color={"white"}>{ask}</Paragraph>
                                 </TouchableOpacity>
                             </XStack>
                         </View>
@@ -175,23 +212,41 @@ export default function TradingScreen() {
 }
 
 const styles = StyleSheet.create({
+    open_close_container:{
+        flex: 1,
+        alignItems:"center",
+        justifyContent:"flex-start",
+        flexDirection:"row",
+        paddingHorizontal: 20,
+        gap: 20,
+        borderRadius: 10,
+        backgroundColor: DefaultColor.slate[200],
+    },
+    open_close_badge:{
+        width: 28,
+        height: 28,
+        borderRadius: 100,
+        alignItems:"center",
+        justifyContent:"center",
+        backgroundColor: DefaultColor.slate[300],
+    },
     btn_trading: {
         width: "50%",
         alignItems: "center",
-        justifyContent:"center",
+        justifyContent: "center",
         paddingVertical: 4,
         borderRadius: 8,
     },
     spread: {
-        position:"absolute",
+        position: "absolute",
         top: "100%",
         left: "50%",
-        transform: [  { translateX: "-50%" }, { translateY: "-100%" }],
+        transform: [{translateX: "-50%"}, {translateY: "-100%"}],
         paddingHorizontal: 4,
         justifyContent: "center",
-        alignItems:"center",
+        alignItems: "center",
         borderRadius: 10,
         zIndex: 10,
         backgroundColor: DefaultColor.white
-    }
+    },
 })

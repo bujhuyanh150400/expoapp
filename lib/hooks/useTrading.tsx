@@ -3,14 +3,16 @@ import twelveAPI from "@/api/twelveapi";
 import {TimeSeriesRequest} from "@/api/twelveapi/type";
 import {BATCH_SIZE_CHART_VIEW} from "@/lib/constant";
 import {_TypeChart} from "@/lib/@type";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import useAuthStore from "@/lib/store/authStore";
 import useSubscribeSymbols from "@/api/socket/subscribeSymbols";
 import useWebsocketSymbolStore from "@/api/socket/subscribeSymbols/store";
 import {CandleChartType, LineChartType} from "@/components/chart/type";
 import {formatDataCandleChart, formatDataLineChart, getBucketTime} from "@/lib/utils";
-
+import {throttle} from "lodash";
+import { shallow } from 'zustand/shallow';
 const updateLineChartData = (prev: LineChartType[], price: number, bucketTime: number, interval: TimeSeriesRequest['interval']): LineChartType[] => {
+    if (!prev.length) return prev;
     const last = prev[prev.length - 1];
     const lastBucket = getBucketTime(last.timestamp, interval);
     if (bucketTime === lastBucket) {
@@ -23,6 +25,7 @@ const updateLineChartData = (prev: LineChartType[], price: number, bucketTime: n
 };
 
 const updateCandleChartData = (prev: CandleChartType[], price: number, bucketTime: number, interval: TimeSeriesRequest['interval']): CandleChartType[] => {
+    if (!prev.length) return prev;
     const last = prev[prev.length - 1];
     const lastBucket = getBucketTime(last.timestamp, interval);
     if (bucketTime === lastBucket) {
@@ -49,18 +52,18 @@ const updateCandleChartData = (prev: CandleChartType[], price: number, bucketTim
 type Params = {
     symbol?: string;
     interval: TimeSeriesRequest['interval'];
-    type_chart: _TypeChart
 };
 
-const useTrading = ({symbol, interval, type_chart}: Params) => {
+const useTrading = ({symbol, interval}: Params) => {
     const [loading, setLoading] = useState<boolean>(false);
 
     const authData = useAuthStore(s => s.auth_data);
 
-    const [dataChart, setDataChart] = useState<CandleChartType[] | LineChartType[]>([]);
+    const chartCandleRef = useRef<CandleChartType[]>([]);
+    const chartLineRef = useRef<LineChartType[]>([]);
 
     const {data, isLoading, isRefetching, isError} = useQuery({
-        queryKey: ['twelveAPI-timeSeries', symbol, interval, type_chart],
+        queryKey: ['twelveAPI-timeSeries', symbol, interval],
         enabled: !!symbol,
         queryFn: async () => {
             return await twelveAPI.timeSeries({
@@ -80,40 +83,29 @@ const useTrading = ({symbol, interval, type_chart}: Params) => {
 
     // set data
     useEffect(() => {
-        if (data && data.length > 0) {
-            if (type_chart === _TypeChart.LINE) {
-                const chart = formatDataLineChart(data);
-                setDataChart(chart);
-            } else if (type_chart === _TypeChart.CANDLE) {
-                const chart = formatDataCandleChart(data);
-                setDataChart(chart);
-            }
-        }
-    }, [data, type_chart]);
+        if (!data || !data.length) return;
+        chartCandleRef.current = formatDataCandleChart(data);
+        chartLineRef.current = formatDataLineChart(data);
+    }, [data]);
 
     // get realtime
     useSubscribeSymbols([symbol || ''], authData?.user?.id, authData?.user?.secret);
-    const prices = useWebsocketSymbolStore((s) => s.prices);
-    const priceRealtime = prices[symbol || ''];
+    const priceRealtime = useWebsocketSymbolStore(s => s.prices[symbol || '']);
 
     useEffect(() => {
         if (!priceRealtime) return;
         const price = priceRealtime.price;
         const bucketTime = getBucketTime(priceRealtime.timestamp * 1000, interval);
-        setDataChart((prev) => {
-            if (!prev.length) return prev;
-            if (type_chart === _TypeChart.LINE) {
-                return updateLineChartData(prev as LineChartType[], price, bucketTime, interval);
-            } else if (type_chart === _TypeChart.CANDLE) {
-                return updateCandleChartData(prev as CandleChartType[], price, bucketTime, interval);
-            }
-            return prev;
-        });
-    }, [priceRealtime, symbol, type_chart, interval]);
+
+        chartLineRef.current = updateLineChartData(chartLineRef.current, price, bucketTime, interval);
+        chartCandleRef.current = updateCandleChartData(chartCandleRef.current, price, bucketTime, interval);
+
+    }, [priceRealtime, symbol, interval]);
 
     return {
         loading,
-        dataChart,
+        lineData: chartLineRef.current,
+        candleData: chartCandleRef.current,
         priceRealtime,
         isError
     };

@@ -122,7 +122,7 @@ const XAxisLabels = ({timeType}: { timeType?: 'day' | 'hour' }) => {
 
     // const spacing = (width - gutter * 2) / (data.length - 1);
     const spacing = (width - step * 2) / (data.length - 1);
-    const labelEvery = Math.ceil(data.length / 40);
+    const labelEvery = Math.ceil(data.length / 9);
 
     return (
         <View
@@ -130,7 +130,7 @@ const XAxisLabels = ({timeType}: { timeType?: 'day' | 'hour' }) => {
                 flexDirection: 'row',
                 marginTop: 8,
                 marginLeft: 0,
-                width: "100%",
+                width: width,
                 gap: (spacing)
             }}
         >
@@ -167,7 +167,7 @@ const CandleChart = ({data, timeFrame, height}: {
 
     useEffect(() => {
         if (timeFrame) {
-            if ([_Timeframe.OneMinute, _Timeframe.FifteenMinutes, _Timeframe.ThirtyMinutes, _Timeframe.FortyFiveMinutes].includes(timeFrame)) {
+            if ([_Timeframe.OneMinute, _Timeframe.FiveMinute, _Timeframe.FifteenMinutes, _Timeframe.ThirtyMinutes, _Timeframe.FortyFiveMinutes].includes(timeFrame)) {
                 setTimeType('hour');
             } else {
                 setTimeType('day');
@@ -185,7 +185,6 @@ const CandleChart = ({data, timeFrame, height}: {
             scrollRef.current.scrollToEnd({animated: false});
         }
     }, []);
-
     return (
         <CandlestickChart.Provider data={data}>
             <ScrollView

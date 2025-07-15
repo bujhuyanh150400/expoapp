@@ -169,10 +169,10 @@ const LineChart : FC<PropLineChart>= ({data, timeFrame, height}) => {
     const [timeType, setTimeType] = useState<'day' | 'hour'>('hour');
 
     useEffect(() => {
-        if (timeFrame){
-            if ([_Timeframe.OneMinute,_Timeframe.FifteenMinutes,_Timeframe.ThirtyMinutes,_Timeframe.FortyFiveMinutes, _Timeframe.OneHour].includes(timeFrame)){
+        if (timeFrame) {
+            if ([_Timeframe.OneMinute, _Timeframe.FiveMinute, _Timeframe.FifteenMinutes, _Timeframe.ThirtyMinutes, _Timeframe.FortyFiveMinutes].includes(timeFrame)) {
                 setTimeType('hour');
-            }else{
+            } else {
                 setTimeType('day');
             }
         }
@@ -197,11 +197,6 @@ const LineChart : FC<PropLineChart>= ({data, timeFrame, height}) => {
     //     }, 2000, { trailing: false }) // giới hạn 1 lần mỗi 1000ms
     // ).current;
     //
-    // useEffect(() => {
-    //     if (scrollRef.current) {
-    //         scrollRef.current.scrollToEnd({ animated: false });
-    //     }
-    // }, []);
     //
     // const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     //     const {
@@ -212,6 +207,11 @@ const LineChart : FC<PropLineChart>= ({data, timeFrame, height}) => {
     //         throttledScrollLeft();
     //     }
     // }
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollToEnd({ animated: false });
+        }
+    }, []);
 
     return (
         <>

@@ -34,7 +34,7 @@ export const formatDataCandleChart = (data: TimeSeriesItem[]): CandleChartType[]
         const high = parseFloat(c.high);
         const low = parseFloat(c.low);
         const close = parseFloat(c.close);
-        acc.push({ timestamp, open, high, low, close });
+        acc.push({timestamp, open, high, low, close});
         return acc;
     }, [] as CandleChartType[])
 }
@@ -42,6 +42,7 @@ export const formatDataCandleChart = (data: TimeSeriesItem[]): CandleChartType[]
 export const getBucketTime = (timestamp: number, timeframe: _Timeframe): number => {
     const minutesMap: Record<_Timeframe, number> = {
         [_Timeframe.OneMinute]: 1,
+        [_Timeframe.FiveMinute]: 5,
         [_Timeframe.FifteenMinutes]: 15,
         [_Timeframe.ThirtyMinutes]: 30,
         [_Timeframe.FortyFiveMinutes]: 45,
@@ -52,4 +53,16 @@ export const getBucketTime = (timestamp: number, timeframe: _Timeframe): number 
     const bucketMinutes = minutesMap[timeframe] || 1;
     const bucketMs = bucketMinutes * 60 * 1000;
     return Math.floor(timestamp / bucketMs) * bucketMs;
+}
+
+export const calculateBidAskSpread = (price: number, spread: string) => {
+    const floatSpread = parseFloat(spread);
+    if (floatSpread) {
+        const bid = +(price - floatSpread / 2).toFixed(5); // SELL
+        const ask = +(price + floatSpread / 2).toFixed(5); // BUY
+        return {bid, ask, spread};
+    } else {
+        return {bid: 0, ask: 0, spread};
+    }
+
 }

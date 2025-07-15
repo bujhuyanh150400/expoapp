@@ -5,6 +5,7 @@ export type Symbol = {
     'symbol': string,
     'currency_base': string,
     'currency_quote': string| null,
+    'spread': string, // float number
     'type': _AssetType
 }
 

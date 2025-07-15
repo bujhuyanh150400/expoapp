@@ -118,7 +118,7 @@ export default function EditFavoriteScreen() {
                                     <Paragraph fontSize={16} fontWeight={700}>{item.symbol}</Paragraph>
                                 </XStack>
                                 <Paragraph fontSize={12} fontWeight={500} color={DefaultColor.slate[400]}>
-                                    {item.currency_base} vs {item.currency_quote}
+                                    {item.currency_base} {item.currency_quote ? `vs ${item.currency_quote}` : ''}
                                 </Paragraph>
                             </YStack>
                         </XStack>

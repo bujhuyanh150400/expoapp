@@ -23,6 +23,7 @@ export enum _AccountType {
  */
 export enum _Timeframe {
     OneMinute = '1min',
+    FiveMinute = '5min',
     FifteenMinutes = '15min',
     ThirtyMinutes = '30min',
     FortyFiveMinutes = '45min',

@@ -51,15 +51,8 @@ const BottomSheetSelect = ({
                 animation="medium"
                 forceRemoveScrollEnabled
             >
-                <Sheet.Overlay
-                    animation="lazy"
-                    backgroundColor="$shadow6"
-                    enterStyle={{ opacity: 0 }}
-                    exitStyle={{ opacity: 0 }}
-                />
-
                 <Sheet.Handle />
-                <Sheet.Frame padding="$4" gap="$3">
+                <Sheet.Frame padding="$4" gap="$3" borderWidth={1}>
                     <ScrollView>
                         {options.map((opt, idx) => (
                             <TouchableOpacity
