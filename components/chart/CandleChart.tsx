@@ -71,13 +71,13 @@ const LastPriceLine = () => {
 };
 
 const YAxisLabels = () => {
-    const { domain, height } = CandlestickChart.useChart();
+    const {domain, height} = CandlestickChart.useChart();
     if (!domain) return null;
 
     const [min, max] = domain;
     const steps = 4;
     const step = (max - min) / steps;
-    const labels = Array.from({ length: steps + 1 }, (_, i) =>
+    const labels = Array.from({length: steps + 1}, (_, i) =>
         (min + step * i).toFixed(2)
     ).reverse();
     return (
@@ -87,7 +87,7 @@ const YAxisLabels = () => {
                 top: 0,
                 right: 0,
                 height: height,
-                width:"100%",
+                width: "100%",
                 justifyContent: 'space-between',
             }}
         >
@@ -108,15 +108,15 @@ const YAxisLabels = () => {
                             marginRight: 4,
                         }}
                     />
-                    <Text style={{ fontSize: 10 }}>{label}</Text>
+                    <Text style={{fontSize: 10}}>{label}</Text>
                 </View>
             ))}
         </View>
     );
 };
 
-const XAxisLabels = ({timeType} :{timeType?: 'day' | 'hour'}) => {
-    const { data, width, step } = CandlestickChart.useChart();
+const XAxisLabels = ({timeType}: { timeType?: 'day' | 'hour' }) => {
+    const {data, width, step} = CandlestickChart.useChart();
 
     if (!data || data.length === 0) return null;
 
@@ -130,7 +130,7 @@ const XAxisLabels = ({timeType} :{timeType?: 'day' | 'hour'}) => {
                 flexDirection: 'row',
                 marginTop: 8,
                 marginLeft: 0,
-                width:"100%",
+                width: "100%",
                 gap: (spacing)
             }}
         >
@@ -147,7 +147,7 @@ const XAxisLabels = ({timeType} :{timeType?: 'day' | 'hour'}) => {
                         }}
                     >
                         {index % labelEvery === 0 ? (
-                            <Text style={{ fontSize: 10, color: '#666' }}>
+                            <Text style={{fontSize: 10, color: '#666'}}>
                                 {label}
                             </Text>
                         ) : null}
@@ -158,14 +158,18 @@ const XAxisLabels = ({timeType} :{timeType?: 'day' | 'hour'}) => {
     );
 };
 
-const CandleChart = ({data, timeFrame}: { data: CandleChartType[] , timeFrame?: _Timeframe}) => {
+const CandleChart = ({data, timeFrame, height}: {
+    data: CandleChartType[],
+    timeFrame?: _Timeframe,
+    height?: number,
+}) => {
     const [timeType, setTimeType] = useState<'day' | 'hour'>('hour');
 
     useEffect(() => {
-        if (timeFrame){
-            if ([_Timeframe.OneMinute,_Timeframe.FifteenMinutes,_Timeframe.ThirtyMinutes,_Timeframe.FortyFiveMinutes].includes(timeFrame)){
+        if (timeFrame) {
+            if ([_Timeframe.OneMinute, _Timeframe.FifteenMinutes, _Timeframe.ThirtyMinutes, _Timeframe.FortyFiveMinutes].includes(timeFrame)) {
                 setTimeType('hour');
-            }else{
+            } else {
                 setTimeType('day');
             }
         }
@@ -178,7 +182,7 @@ const CandleChart = ({data, timeFrame}: { data: CandleChartType[] , timeFrame?: 
 
     useEffect(() => {
         if (scrollRef.current) {
-            scrollRef.current.scrollToEnd({ animated: false });
+            scrollRef.current.scrollToEnd({animated: false});
         }
     }, []);
 
@@ -188,10 +192,10 @@ const CandleChart = ({data, timeFrame}: { data: CandleChartType[] , timeFrame?: 
                 ref={scrollRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ width: chartWidth }}
+                contentContainerStyle={{width: chartWidth}}
             >
                 <View style={{width: chartWidth}}>
-                    <CandlestickChart height={200} width={chartWidth - (130)}>
+                    <CandlestickChart height={height ?? 200} width={chartWidth - (130)}>
                         <YAxisLabels/>
                         <CandlestickChart.Candles/>
                         <XAxisLabels timeType={timeType}/>

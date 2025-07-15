@@ -1,4 +1,4 @@
-import {Dimensions, Text, View} from "react-native";
+import {Dimensions, NativeScrollEvent, NativeSyntheticEvent, Text, View} from "react-native";
 import {FC, useContext, useEffect, useRef, useState} from "react";
 import {LineChart as LineChartWagmi, LineChartDimensionsContext, } from "react-native-wagmi-charts";
 import Svg, {Line} from "react-native-svg";
@@ -7,6 +7,8 @@ import {_Timeframe} from "@/lib/@type";
 import DefaultColor from "@/components/ui/DefaultColor";
 import {ScrollView} from "react-native-gesture-handler";
 import dayjs from 'dayjs';
+import { throttle } from 'lodash';
+
 const screenWidth = Dimensions.get('window').width;
 
 const LastPriceLine = () => {
@@ -160,7 +162,7 @@ const XAxisLabels = ({timeType} :{timeType?: 'day' | 'hour'}) => {
 type PropLineChart = {
     data: LineChartType[] ,
     timeFrame?: _Timeframe,
-    height?:number
+    height?:number,
 };
 
 const LineChart : FC<PropLineChart>= ({data, timeFrame, height}) => {
@@ -181,11 +183,36 @@ const LineChart : FC<PropLineChart>= ({data, timeFrame, height}) => {
     const chartWidth = (data.length - 1) * pointSpacing;
 
     const scrollRef = useRef<ScrollView>(null);
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollToEnd({ animated: false });
-        }
-    }, []);
+
+    // const loadingLeftRef = useRef(false);
+    // const throttledScrollLeft = useRef(
+    //     throttle(async () => {
+    //         if (loadingLeftRef.current || !handleScrollLeft) return;
+    //         loadingLeftRef.current = true;
+    //         try {
+    //             handleScrollLeft(); // gọi API hoặc gì đó
+    //         } finally {
+    //             loadingLeftRef.current = false;
+    //         }
+    //     }, 2000, { trailing: false }) // giới hạn 1 lần mỗi 1000ms
+    // ).current;
+    //
+    // useEffect(() => {
+    //     if (scrollRef.current) {
+    //         scrollRef.current.scrollToEnd({ animated: false });
+    //     }
+    // }, []);
+    //
+    // const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    //     const {
+    //         contentOffset: { x },
+    //     } = e.nativeEvent
+    //     // Gần đầu trái
+    //     if (x <= 0 && handleScrollLeft) {
+    //         throttledScrollLeft();
+    //     }
+    // }
+
     return (
         <>
             <LineChartWagmi.Provider data={data}>

@@ -1,7 +1,10 @@
 import {
     AddFavoriteSymbolsRequest,
+    AssetTradingItemParams, AssetTradingItemResponse,
     AssetTradingListResponse,
-    AssetTradingQueryParams, DeletedFavoriteSymbolsRequest, getFavoriteSymbolsResponse,
+    AssetTradingQueryParams,
+    DeletedFavoriteSymbolsRequest,
+    getFavoriteSymbolsResponse,
     SearchSymbolRequest,
     SearchSymbolResponse
 } from "@/api/asset_trading/type";
@@ -14,6 +17,10 @@ const assetTradingAPI = {
         const response = await client.get(`${defaultURI}/list`, {params});
         return response.data;
     },
+    item: async (params: AssetTradingItemParams): Promise<AssetTradingItemResponse> => {
+        const response = await client.get(`${defaultURI}/item`, {params});
+        return response.data;
+    },
     searchSymbol: async (params: SearchSymbolRequest): Promise<SearchSymbolResponse> => {
         const response = await client.get(`${defaultURI}/search-symbol`, {params});
         return response.data;
@@ -22,7 +29,7 @@ const assetTradingAPI = {
         const response = await client.get(`${defaultURI}/favorite-symbols`);
         return response.data;
     },
-    addFavoriteSymbolsRequest: async (data: DeletedFavoriteSymbolsRequest): Promise<getFavoriteSymbolsResponse> => {
+    addFavoriteSymbolsRequest: async (data: AddFavoriteSymbolsRequest): Promise<getFavoriteSymbolsResponse> => {
         const response = await client.post(`${defaultURI}/favorite-symbols`, data);
         return response.data;
     },

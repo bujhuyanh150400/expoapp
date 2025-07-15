@@ -11,7 +11,7 @@ const useSubscribeSymbols = (symbols: string[], userId?: number, secret?: string
     useEffect(() => {
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
         if (!userId || !secret) return;
-
+        symbols.filter(s => s.trim() !== "")
         const toSub = symbols.filter((s) => !mountedSymbols.current.has(s));
         const toUnsub = Array.from(mountedSymbols.current).filter((s) => !symbols.includes(s));
         // Gửi subscribe
@@ -45,12 +45,13 @@ const useSubscribeSymbols = (symbols: string[], userId?: number, secret?: string
                 if (data.symbol && data.price) {
                     updatePrice({
                         symbol: data.symbol,
+                        timestamp: data.timestamp,
                         price: parseFloat(data.price),
                         percent: data.percent ?? null,
                     });
                 }
             } catch (err) {
-                console.error('Invalid message:', event.data);
+                console.log('Invalid message:', event.data);
             }
         };
 

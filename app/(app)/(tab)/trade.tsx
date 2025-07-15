@@ -1,4 +1,4 @@
-import {TouchableOpacity, View} from "react-native";
+import {Alert, TouchableOpacity, View} from "react-native";
 import {Card, H6, Paragraph, Sheet, XStack, YStack} from "tamagui";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useEffect, useMemo, useState} from "react";
@@ -226,7 +226,18 @@ export default function TradeListScreen() {
                             {listDataRealtimePrice.map((item,index) => (
                                 <TouchableOpacity
                                     key={index}
-                                    onPress={() => router.push("/(app)/(trade)/trading")}
+                                    onPress={() => {
+                                        if (item.price) {
+                                            router.push({
+                                                pathname: '/(app)/(trade)/trading',
+                                                params: {
+                                                    symbol: item.symbol
+                                                }
+                                            })
+                                        }else {
+                                            Alert.alert('Hiện tại giao dịch này không thể truy cập được, vui lòng thử lại sau')
+                                        }
+                                    }}
                                 >
                                     <Card bordered paddingHorizontal={"$3"} paddingVertical={"$2"} marginVertical={"$2"}
                                           backgroundColor={DefaultColor.white}>
@@ -253,7 +264,7 @@ export default function TradeListScreen() {
                                                 {item.percent ?
                                                     <Paragraph fontSize={14} fontWeight={700}
                                                                color={item.percent > 0 ? DefaultColor.green[400] : DefaultColor.red[400]}>
-                                                        {item.percent > 0 ? "+" : "-"}
+                                                        {item.percent > 0 ? "+" : ""}
                                                         {item.percent} %
                                                     </Paragraph>
                                                     :<SkeletonFade />

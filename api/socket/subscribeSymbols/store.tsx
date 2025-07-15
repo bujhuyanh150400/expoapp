@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 type SymbolPrice = {
     symbol: string;
+    timestamp: number;
     price: number;
     percent: number | null;
 };

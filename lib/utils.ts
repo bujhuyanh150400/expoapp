@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import {TimeSeriesItem} from "@/api/twelveapi/type";
 import {CandleChartType, LineChartType} from "@/components/chart/type";
+import {_Timeframe} from "@/lib/@type";
 
 export const formatMessageTime = (createdAt: string) => {
     const created = dayjs(createdAt);
@@ -36,4 +37,19 @@ export const formatDataCandleChart = (data: TimeSeriesItem[]): CandleChartType[]
         acc.push({ timestamp, open, high, low, close });
         return acc;
     }, [] as CandleChartType[])
+}
+
+export const getBucketTime = (timestamp: number, timeframe: _Timeframe): number => {
+    const minutesMap: Record<_Timeframe, number> = {
+        [_Timeframe.OneMinute]: 1,
+        [_Timeframe.FifteenMinutes]: 15,
+        [_Timeframe.ThirtyMinutes]: 30,
+        [_Timeframe.FortyFiveMinutes]: 45,
+        [_Timeframe.OneHour]: 60,
+        [_Timeframe.OneDay]: 1440,
+        [_Timeframe.OneWeek]: 10080,
+    };
+    const bucketMinutes = minutesMap[timeframe] || 1;
+    const bucketMs = bucketMinutes * 60 * 1000;
+    return Math.floor(timestamp / bucketMs) * bucketMs;
 }

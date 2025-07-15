@@ -6,8 +6,8 @@ export type TimeSeriesRequest = {
     interval: _Timeframe,
     outputsize: number,
     order: 'ASC' | 'DESC',
-    startDate?: string,
-    endDate?: string
+    startdate?: string,
+    enddate?: string
 }
 
 

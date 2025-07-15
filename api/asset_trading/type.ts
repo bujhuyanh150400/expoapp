@@ -17,6 +17,14 @@ export type AssetTradingListResponse = {
     message:string;
 };
 
+export type AssetTradingItemParams = {
+    symbol: string;
+};
+export type AssetTradingItemResponse = {
+    data: Symbol;
+    message:string;
+};
+
 export type SearchSymbolRequest = {
     keyword?:string;
     page?: number;

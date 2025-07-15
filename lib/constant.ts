@@ -15,3 +15,5 @@ export const APP_INFO = {
 }
 
 export const SUPPORT_PHONE_NUMBER = "18006371"
+
+export const BATCH_SIZE_CHART_VIEW = 100;
