@@ -36,25 +36,7 @@ export type Account = {
     account_type: AccountType; // Thông tin loại tài khoản
     currency: CurrencyType;
     lever: Lever
-    transactions: TransactionType[]; // Danh sách giao dịch liên quan đến tài khoản
 };
-
-export type TransactionType = {
-    "id": number,
-    "account_id": number,
-    "parent_id": number,
-    "currency": string,
-    "type": number,
-    "number": number,
-    "price_buy": string,
-    "price_sell": string,
-    "profit": string,
-    "symbol": string,
-    "message": null,
-    "status": number,
-    "created_at": string,
-    "updated_at": string
-}
 
 
 export type RechargeAccountRequest = {
