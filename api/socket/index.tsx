@@ -15,7 +15,6 @@ export const WSQuotePriceClient = (() => {
         socket = new WebSocket(quote_price);
 
         socket.onopen = () => {
-            console.log('[WebSocket] Connected');
             subscribedSymbols.forEach(sendSubscribe);
         };
 
@@ -25,14 +24,11 @@ export const WSQuotePriceClient = (() => {
         };
 
         socket.onclose = () => {
-            console.log('[WebSocket] Closed');
             socket = null;
-            // Optional: auto-reconnect
             setTimeout(connect, 3000);
         };
 
         socket.onerror = (err) => {
-            console.error('[WebSocket] Error:', err);
         };
     };
 

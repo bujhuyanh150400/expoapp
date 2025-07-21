@@ -1,24 +1,27 @@
 import {router, useLocalSearchParams} from "expo-router";
-import React, {useEffect, useMemo, useState} from "react";
-import {View, StyleSheet, TouchableOpacity} from "react-native";
+import React, {useEffect, useRef, useState} from "react";
+import {ActivityIndicator, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Paragraph, XStack, YStack} from "tamagui";
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
 import DefaultColor from "@/components/ui/DefaultColor";
-import {dataTest} from "@/test/trading";
-import {calculateBidAskSpread, formatDataLineChart} from "@/lib/utils";
-import LineChart from "@/components/chart/LineChart";
+import {calculateBidAskSpread} from "@/lib/utils";
 import HeaderBack from "@/components/HeaderBack";
 import useNestedState from "@/lib/hooks/useNestedState";
-import {_Timeframe, _TypeChart} from "@/lib/@type";
-import {MaterialIcons, FontAwesome6} from "@expo/vector-icons";
+import {_Timeframe, _TradeType, _TypeChart} from "@/lib/@type";
+import {FontAwesome6, MaterialIcons} from "@expo/vector-icons";
 import BottomSheetSelect from "@/components/BottomSheetSelect";
-import useTrading from "@/lib/hooks/useTrading";
 import useAppStore from "@/lib/store/appStore";
 import {useQuery} from "@tanstack/react-query";
 import assetTradingAPI from "@/api/asset_trading";
 import {showMessage} from "react-native-flash-message";
 import SkeletonFade from "@/components/SkeletonFade";
-import CandleChart from "@/components/chart/CandleChart";
+import useSubscribeSymbols from "@/api/socket/subscribeSymbols";
+import useAuthStore from "@/lib/store/authStore";
+import useWebsocketSymbolStore from "@/api/socket/subscribeSymbols/store";
+import type {WebView as WebViewType} from 'react-native-webview';
+import WebView from "react-native-webview";
+import {BACKEND_REACT_URL} from "@/lib/constant";
+import TransactionSheet from "@/components/TransactionSheet";
 
 const TIME_FRAME_SELECT = [
     {label: '1 phút', unit: "1m", value: _Timeframe.OneMinute},
@@ -29,6 +32,7 @@ const TIME_FRAME_SELECT = [
     {label: '1 ngày', unit: "1d", value: _Timeframe.OneDay},
     {label: '1 tuần', unit: "1w", value: _Timeframe.OneWeek},
 ];
+
 const TYPE_CHART_SELECT = [
     {label: 'Đường', unit: <FontAwesome6 name="chart-line" size={16} color="black"/>, value: _TypeChart.LINE},
     {
@@ -38,16 +42,19 @@ const TYPE_CHART_SELECT = [
     },
 ]
 
-export default function TradingScreen() {
-    // Height chart
-    const [height, setHeight] = useNestedState({head: 0, container: 0, header: 0, footer: 0});
-    const chartHeight = useMemo(() => height.container - height.header - height.footer - height.header, [height]);
 
+export default function TradingScreen() {
+    const webViewRef = useRef<WebViewType>(null);
+    const [isWebViewReady, setIsWebViewReady] = useState(false);
     const {symbol} = useLocalSearchParams<{ symbol?: string }>();
+
+    const [openTransactionSheet, setOpenTransactionSheet] = useState<boolean>(false);
+    const [tradeType, setTradeType] = useState<_TradeType>(_TradeType.BUY);
+
 
     const [filter, setFilter] = useNestedState({
         timeframe: _Timeframe.FiveMinute,
-        type_chart: _TypeChart.CANDLE,
+        type_chart: _TypeChart.LINE,
     });
 
     const queryItemSymbol = useQuery({
@@ -61,11 +68,29 @@ export default function TradingScreen() {
         select: (res) => res.data
     })
 
+    const authData = useAuthStore(s => s.auth_data);
 
-    const {lineData, candleData, loading, priceRealtime, isError} = useTrading({
-        symbol,
-        interval: filter.timeframe,
-    });
+    // get realtime
+    useSubscribeSymbols([symbol || ''], authData?.user?.id, authData?.user?.secret);
+    const priceRealtime = useWebsocketSymbolStore(s => s.prices[symbol || '']);
+
+    const sendChartPayload = () => {
+        if (!webViewRef.current || !authData?.user) return;
+        const payload = {
+            symbol,
+            interval: filter.timeframe,
+            chartType: filter.type_chart,
+            user_id: authData?.user?.id,
+            secret: authData?.user?.secret,
+        };
+        webViewRef.current.postMessage(JSON.stringify(payload));
+    };
+
+    // send to web view to handle chart
+    useEffect(() => {
+        if (!isWebViewReady || !webViewRef.current) return;
+        sendChartPayload();
+    }, [symbol, filter.timeframe, filter.type_chart, authData, isWebViewReady]);
 
     const {
         bid,
@@ -74,7 +99,7 @@ export default function TradingScreen() {
     } = calculateBidAskSpread(priceRealtime.price, queryItemSymbol.data ? queryItemSymbol.data.spread : "");
 
     useEffect(() => {
-        if (queryItemSymbol.isError || isError) {
+        if (queryItemSymbol.isError) {
             showMessage({
                 type: "danger",
                 message: "Có trục trặc kĩ thuật",
@@ -83,24 +108,22 @@ export default function TradingScreen() {
             })
             router.back();
         }
-    }, [queryItemSymbol.isError, isError]);
+    }, [queryItemSymbol.isError]);
 
     // set loading
     const setLoading = useAppStore(state => state.setLoading);
 
     useEffect(() => {
-        setLoading(queryItemSymbol.isLoading || queryItemSymbol.isRefetching || loading);
-    }, [queryItemSymbol.isLoading, queryItemSymbol.isRefetching, loading]);
+        setLoading(queryItemSymbol.isLoading || queryItemSymbol.isRefetching);
+    }, [queryItemSymbol.isLoading, queryItemSymbol.isRefetching]);
     return (
         <>
-            <HeaderBack onLayout={(e) => setHeight({header: e.nativeEvent.layout.height})}/>
-            <View style={{flex: 1, padding: 20, paddingTop: 0}}
-                  onLayout={(e) => setHeight({container: e.nativeEvent.layout.height})}
-            >
+            <HeaderBack/>
+            <View style={{flex: 1, paddingTop: 0}}>
                 {/*Header*/}
-                <View
-                    onLayout={(e) => setHeight({header: e.nativeEvent.layout.height})}
-                >
+                <View style={{
+                    paddingHorizontal: 20
+                }}>
                     <XStack alignItems={"center"} gap={"$2"}>
                         {/*Symbol info*/}
                         <YStack gap={"$2"}>
@@ -131,18 +154,29 @@ export default function TradingScreen() {
                 </View>
 
                 {/*Chart*/}
-                {chartHeight > 0 && !loading && (
-                    <>
-                        {filter.type_chart === _TypeChart.CANDLE && candleData.length > 0 &&
-                            <CandleChart data={candleData} height={chartHeight} timeFrame={filter.timeframe}/>}
-                        {filter.type_chart === _TypeChart.LINE && lineData.length > 0 &&
-                            <LineChart data={lineData} height={chartHeight} timeFrame={filter.timeframe}/>}
-                    </>
-                )}
+                <WebView
+                    ref={webViewRef}
+                    renderLoading={() => <ActivityIndicator/>}
+                    source={{uri: BACKEND_REACT_URL}}
+                    originWhitelist={['*']}
+                    javaScriptEnabled={true}
+                    domStorageEnabled={true}
+                    startInLoadingState={true}
+                    style={{flex: 1}}
+                    onMessage={(event) => {
+                        if (event.nativeEvent.data === 'READY') {
+                            setIsWebViewReady(true);
+                            sendChartPayload();
+                        }
+                    }}
+                />
 
                 {/*Footer*/}
                 <View
-                    onLayout={(e) => setHeight({footer: e.nativeEvent.layout.height})}
+                    style={{
+                        paddingHorizontal: 20,
+                        paddingBottom: 20,
+                    }}
                 >
                     <YStack gap={"$4"} paddingTop={"$4"}>
                         <XStack alignItems={"center"} gap={"$4"} justifyContent={"space-between"}>
@@ -187,18 +221,30 @@ export default function TradingScreen() {
                             width: "100%"
                         }}>
                             <XStack width={"100%"} gap={"$2"}>
-                                <TouchableOpacity style={[
-                                    styles.btn_trading, {backgroundColor: DefaultColor.red[500]}
-                                ]}>
+                                <TouchableOpacity
+                                    onPress={()=>{
+                                        setOpenTransactionSheet(true);
+                                        setTradeType(_TradeType.SELL);
+                                    }}
+                                    style={[
+                                        styles.btn_trading, {backgroundColor: DefaultColor.red[500]}
+                                    ]}
+                                >
                                     <Paragraph fontSize={14} fontWeight={500} color={"white"}>BÁN</Paragraph>
                                     <Paragraph fontSize={14} fontWeight={500} color={"white"}>{bid}</Paragraph>
                                 </TouchableOpacity>
                                 <View style={styles.spread}>
                                     <Paragraph fontSize={12}>{spread}</Paragraph>
                                 </View>
-                                <TouchableOpacity style={[
-                                    styles.btn_trading, {backgroundColor: DefaultColor.blue[500]}
-                                ]}>
+                                <TouchableOpacity
+                                    onPress={()=>{
+                                        setOpenTransactionSheet(true);
+                                        setTradeType(_TradeType.BUY);
+                                    }}
+                                    style={[
+                                        styles.btn_trading, {backgroundColor: DefaultColor.blue[500]}
+                                    ]}
+                                >
                                     <Paragraph fontSize={14} fontWeight={500} color={"white"}>MUA</Paragraph>
                                     <Paragraph fontSize={14} fontWeight={500} color={"white"}>{ask}</Paragraph>
                                 </TouchableOpacity>
@@ -207,27 +253,33 @@ export default function TradingScreen() {
                     </YStack>
                 </View>
             </View>
+            <TransactionSheet
+                tradeType={tradeType}
+                open={openTransactionSheet}
+                setOpen={setOpenTransactionSheet}
+                price={tradeType === _TradeType.BUY ? ask : bid}
+            />
         </>
     )
 }
 
 const styles = StyleSheet.create({
-    open_close_container:{
+    open_close_container: {
         flex: 1,
-        alignItems:"center",
-        justifyContent:"flex-start",
-        flexDirection:"row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        flexDirection: "row",
         paddingHorizontal: 20,
         gap: 20,
         borderRadius: 10,
         backgroundColor: DefaultColor.slate[200],
     },
-    open_close_badge:{
+    open_close_badge: {
         width: 28,
         height: 28,
         borderRadius: 100,
-        alignItems:"center",
-        justifyContent:"center",
+        alignItems: "center",
+        justifyContent: "center",
         backgroundColor: DefaultColor.slate[300],
     },
     btn_trading: {
