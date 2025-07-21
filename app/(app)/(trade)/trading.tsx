@@ -1,13 +1,13 @@
 import {router, useLocalSearchParams} from "expo-router";
 import React, {useEffect, useRef, useState} from "react";
-import {ActivityIndicator, StyleSheet, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Platform, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Paragraph, XStack, YStack} from "tamagui";
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
 import DefaultColor from "@/components/ui/DefaultColor";
 import {calculateBidAskSpread} from "@/lib/utils";
 import HeaderBack from "@/components/HeaderBack";
 import useNestedState from "@/lib/hooks/useNestedState";
-import {_Timeframe, _TradeType, _TypeChart} from "@/lib/@type";
+import {_Timeframe, _TradeType, _TypeChart, TIME_FRAME_SELECT} from "@/lib/@type";
 import {FontAwesome6, MaterialIcons} from "@expo/vector-icons";
 import BottomSheetSelect from "@/components/BottomSheetSelect";
 import useAppStore from "@/lib/store/appStore";
@@ -22,18 +22,10 @@ import type {WebView as WebViewType} from 'react-native-webview';
 import WebView from "react-native-webview";
 import {BACKEND_REACT_URL} from "@/lib/constant";
 import TransactionSheet from "@/components/TransactionSheet";
+import useGetAccountActive from "@/lib/hooks/useGetAccountActive";
 
-const TIME_FRAME_SELECT = [
-    {label: '1 phút', unit: "1m", value: _Timeframe.OneMinute},
-    {label: '5 phút', unit: "5m", value: _Timeframe.FiveMinute},
-    {label: '30 phút', unit: "30m", value: _Timeframe.ThirtyMinutes},
-    {label: '45 phút', unit: "45m", value: _Timeframe.FortyFiveMinutes},
-    {label: '1 giờ', unit: "1h", value: _Timeframe.OneHour},
-    {label: '1 ngày', unit: "1d", value: _Timeframe.OneDay},
-    {label: '1 tuần', unit: "1w", value: _Timeframe.OneWeek},
-];
 
-const TYPE_CHART_SELECT = [
+export const TYPE_CHART_SELECT = [
     {label: 'Đường', unit: <FontAwesome6 name="chart-line" size={16} color="black"/>, value: _TypeChart.LINE},
     {
         label: 'Biểu đồ nến',
@@ -41,16 +33,16 @@ const TYPE_CHART_SELECT = [
         value: _TypeChart.CANDLE
     },
 ]
-
-
 export default function TradingScreen() {
     const webViewRef = useRef<WebViewType>(null);
     const [isWebViewReady, setIsWebViewReady] = useState(false);
     const {symbol} = useLocalSearchParams<{ symbol?: string }>();
 
     const [openTransactionSheet, setOpenTransactionSheet] = useState<boolean>(false);
+
     const [tradeType, setTradeType] = useState<_TradeType>(_TradeType.BUY);
 
+    const {account} =  useGetAccountActive();
 
     const [filter, setFilter] = useNestedState({
         timeframe: _Timeframe.FiveMinute,
@@ -158,6 +150,7 @@ export default function TradingScreen() {
                     ref={webViewRef}
                     renderLoading={() => <ActivityIndicator/>}
                     source={{uri: BACKEND_REACT_URL}}
+                    mixedContentMode="always"
                     originWhitelist={['*']}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
@@ -166,7 +159,13 @@ export default function TradingScreen() {
                     onMessage={(event) => {
                         if (event.nativeEvent.data === 'READY') {
                             setIsWebViewReady(true);
-                            sendChartPayload();
+                            if (Platform.OS === 'android') {
+                                setTimeout(() => {
+                                    setIsWebViewReady(true);
+                                }, 300);
+                            } else {
+                                sendChartPayload();
+                            }
                         }
                     }}
                 />
@@ -222,7 +221,7 @@ export default function TradingScreen() {
                         }}>
                             <XStack width={"100%"} gap={"$2"}>
                                 <TouchableOpacity
-                                    onPress={()=>{
+                                    onPress={() => {
                                         setOpenTransactionSheet(true);
                                         setTradeType(_TradeType.SELL);
                                     }}
@@ -237,7 +236,7 @@ export default function TradingScreen() {
                                     <Paragraph fontSize={12}>{spread}</Paragraph>
                                 </View>
                                 <TouchableOpacity
-                                    onPress={()=>{
+                                    onPress={() => {
                                         setOpenTransactionSheet(true);
                                         setTradeType(_TradeType.BUY);
                                     }}
@@ -254,6 +253,8 @@ export default function TradingScreen() {
                 </View>
             </View>
             <TransactionSheet
+                symbol={queryItemSymbol.data}
+                account={account}
                 tradeType={tradeType}
                 open={openTransactionSheet}
                 setOpen={setOpenTransactionSheet}

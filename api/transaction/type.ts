@@ -1,11 +1,13 @@
-import {_TradeType} from "@/lib/@type";
+import {_TradeType, _TransactionTriggerType} from "@/lib/@type";
 
 export type StoreTransactionRequestType = {
     account_id: number;
-    currency: string;
-    symbol: string;
+    asset_trading_id: number;
     type: _TradeType;
-    number: string;
-    price_buy?: number | null;
-    price_sell?: number | null;
+    type_trigger: _TransactionTriggerType,
+    volume: string;
+    entry_price: string;
+    trigger_price?: string;
+    percent_take_profit?: string;
+    percent_stop_loss?: string;
 }
