@@ -11,3 +11,16 @@ export type StoreTransactionRequestType = {
     percent_take_profit?: string;
     percent_stop_loss?: string;
 }
+
+export type TotalTransactionRequestType = {
+    account_id: number;
+}
+
+export type StoreTransactionResponseType = {
+    "message": string,
+    "data": {
+        "open": number,
+        "waiting": number,
+        "close": number
+    }
+}

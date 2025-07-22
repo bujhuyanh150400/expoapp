@@ -21,6 +21,7 @@ import transactionAPI from "@/api/transaction";
 import {showMessage} from "react-native-flash-message";
 import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
 import useAppStore from "@/lib/store/appStore";
+import {useTransactionTotal} from "@/lib/hooks/useTransactionTotal";
 
 const formatNumber = (num: number) => {
     return num.toFixed(2);
@@ -37,8 +38,7 @@ const calculateProfit = (price: number, percent: string, volume: string, type: "
     }
     if (type === "TP") {
         return (price * volumeValue + ((price * percentValue / 100) * volumeValue)).toFixed(2);
-    }
-    else {
+    } else {
         return (price * volumeValue - ((price * percentValue / 100) * volumeValue)).toFixed(2);
     }
 }
@@ -60,6 +60,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
     const [openMore, setOpenMore] = useState<boolean>(false);
     const [tab, setTab] = useState<_TransactionTriggerType>(_TransactionTriggerType.TYPE_TRIGGER_AUTO_TRIGGER);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const {query} = useTransactionTotal(props.account?.id || null);
 
     const {mutate, isPending} = useMutation({
         mutationFn: (data: StoreTransactionRequestType) => transactionAPI.store(data),
@@ -69,7 +70,9 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                 type: 'success',
                 duration: 3000,
             });
-            props.setOpen(false);
+            query.refetch().then(() => {
+                props.setOpen(false);
+            });
         },
         onError: (error) => {
             useShowErrorHandler(error);
@@ -94,8 +97,8 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
         isError: false,
         volume: "",
         trigger_price: "",
-        percent_stop_loss:"",
-        percent_take_profit:""
+        percent_stop_loss: "",
+        percent_take_profit: ""
     })
 
     useEffect(() => {
@@ -104,20 +107,22 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
         } else {
             setError({volume: "", isError: false});
         }
-        if (form.percent_stop_loss){
-            const stopLoss = parseToNumber(form.percent_stop_loss);
-            if (stopLoss < 0) {
-                setError({percent_stop_loss: "Cắt lỗ phải lớn hơn 0 %", isError: true});
-            } else {
-                setError({percent_stop_loss: "", isError: false});
+        if ([_TransactionTriggerType.TYPE_TRIGGER_LOW_BUY, _TransactionTriggerType.TYPE_TRIGGER_HIGH_BUY, _TransactionTriggerType.TYPE_TRIGGER_AUTO_TRIGGER].includes(form.type_trigger)) {
+            if (form.percent_stop_loss) {
+                const stopLoss = parseToNumber(form.percent_stop_loss);
+                if (stopLoss < 0 || stopLoss > 100) {
+                    setError({percent_stop_loss: "Cắt lỗ phải lớn hơn 0 hoặc nhỏ hơn 100%", isError: true});
+                } else {
+                    setError({percent_stop_loss: "", isError: false});
+                }
             }
-        }
-        if (form.percent_take_profit){
-            const stopLoss = parseToNumber(form.percent_take_profit);
-            if (stopLoss < 0) {
-                setError({percent_take_profit: "Chốt lời phải lớn hơn 0 %", isError: true});
-            } else {
-                setError({percent_take_profit: "" , isError: false});
+            if (form.percent_take_profit) {
+                const stopLoss = parseToNumber(form.percent_take_profit);
+                if (stopLoss < 0 || stopLoss > 100) {
+                    setError({percent_take_profit: "Chốt lời phải lớn hơn 0 hoặc nhỏ hơn 100%", isError: true});
+                } else {
+                    setError({percent_take_profit: "", isError: false});
+                }
             }
         }
     }, [form]);
@@ -130,7 +135,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                 } else {
                     setError({trigger_price: ``, isError: false});
                 }
-            }else if (form.type_trigger === _TransactionTriggerType.TYPE_TRIGGER_HIGH_BUY) {
+            } else if (form.type_trigger === _TransactionTriggerType.TYPE_TRIGGER_HIGH_BUY) {
                 if (parseToNumber(form.trigger_price) <= props.price) {
                     setError({trigger_price: `Giá mua cao phải lớn hơn ${props.price}`, isError: true});
                 } else {
@@ -141,14 +146,14 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
     }, [props.price, form.trigger_price, form.type_trigger]);
 
     useEffect(() => {
-        if (props.open){
+        if (props.open) {
             if (props.symbol && props.account) {
                 setForm({
                     account_id: props.account.id,
                     asset_trading_id: props.symbol.id,
                 });
             }
-        }else{
+        } else {
             setOpenMore(false);
             setForm({
                 account_id: 0,
@@ -167,8 +172,8 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
     useEffect(() => {
         if (openMore) {
             setForm({
-                percent_take_profit: "0.00",
-                percent_stop_loss: "0.00",
+                percent_take_profit: "0",
+                percent_stop_loss: "0",
             });
             if (tab === _TransactionTriggerType.TYPE_TRIGGER_AUTO_TRIGGER) {
                 setSnapPoint(SNAP_OPEN);
@@ -210,7 +215,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
             snapPoints={[snapPoint]}
             dismissOnSnapToBottom
             zIndex={100_000}
-            animation={"fast"}
+            animation={"manual"}
         >
             <Sheet.Overlay
                 animation="lazy"
@@ -227,7 +232,8 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Sheet.Frame padding="$4" gap="$2">
-                        <XStack alignItems={"center"} justifyContent={"flex-end"}>
+                        <XStack alignItems={"center"} justifyContent={"space-between"}>
+                            <Paragraph fontSize={16} fontWeight={700}>Giao dịch</Paragraph>
                             <TouchableOpacity
                                 style={[
                                     styles.btn_round, {
@@ -351,9 +357,10 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                                     onChange={(value) => setForm({percent_take_profit: value})}
                                                     pre={"+%"}
                                                 />
-                                                {(form.percent_take_profit && parseToNumber(form.percent_take_profit) > 0 ) && (
+                                                {(form.percent_take_profit && parseToNumber(form.percent_take_profit) > 0) && (
                                                     <Paragraph color={DefaultColor.slate[500]}>
-                                                        Gía chốt lời:{calculateProfit(props.price, form.percent_take_profit, form.volume, "TP")}
+                                                        Gía chốt
+                                                        lời:{calculateProfit(props.price, form.percent_take_profit, form.volume, "TP")}
                                                     </Paragraph>
                                                 )}
                                                 {error?.percent_take_profit && (
@@ -368,9 +375,10 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                                     onChange={(value) => setForm({percent_stop_loss: value})}
                                                     pre={"-%"}
                                                 />
-                                                {(form.percent_stop_loss && parseToNumber(form.percent_stop_loss) > 0 ) && (
+                                                {(form.percent_stop_loss && parseToNumber(form.percent_stop_loss) > 0) && (
                                                     <Paragraph color={DefaultColor.slate[500]}>
-                                                        Gía cắt lỗ:{calculateProfit(props.price, form.percent_stop_loss, form.volume, "SL")}
+                                                        Gía cắt
+                                                        lỗ:{calculateProfit(props.price, form.percent_stop_loss, form.volume, "SL")}
                                                     </Paragraph>
                                                 )}
                                                 {error?.percent_stop_loss && (
@@ -393,17 +401,18 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                 color="#fff"
                                 fontWeight="bold"
                                 onPress={() => {
-                                    mutate({
+                                    const dataSubmit = {
                                         account_id: form.account_id,
                                         asset_trading_id: form.asset_trading_id,
                                         type: form.type,
                                         type_trigger: form.type_trigger,
                                         volume: form.volume,
-                                        entry_price: form.entry_price,
+                                        entry_price: props.price.toString(),
                                         trigger_price: form.trigger_price,
                                         percent_take_profit: form.percent_take_profit,
                                         percent_stop_loss: form.percent_stop_loss,
-                                    })
+                                    }
+                                    mutate(dataSubmit)
                                 }}
                             >
                                 <YStack alignItems="center" justifyContent="center">

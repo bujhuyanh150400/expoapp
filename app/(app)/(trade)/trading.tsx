@@ -23,6 +23,8 @@ import WebView from "react-native-webview";
 import {BACKEND_REACT_URL} from "@/lib/constant";
 import TransactionSheet from "@/components/TransactionSheet";
 import useGetAccountActive from "@/lib/hooks/useGetAccountActive";
+import {useTransactionTotal} from "@/lib/hooks/useTransactionTotal";
+import TransactionSection from "@/components/TransactionSection";
 
 
 export const TYPE_CHART_SELECT = [
@@ -108,6 +110,15 @@ export default function TradingScreen() {
     useEffect(() => {
         setLoading(queryItemSymbol.isLoading || queryItemSymbol.isRefetching);
     }, [queryItemSymbol.isLoading, queryItemSymbol.isRefetching]);
+
+    // call total transaction
+    const {query} = useTransactionTotal(account?.id || null);
+    useEffect(() => {
+        if (account?.id) {
+            query.refetch();
+        }
+    }, [account?.id]);
+
     return (
         <>
             <HeaderBack/>
@@ -160,6 +171,7 @@ export default function TradingScreen() {
                         if (event.nativeEvent.data === 'READY') {
                             setIsWebViewReady(true);
                             if (Platform.OS === 'android') {
+                                // android requires a delay to ensure the webview is fully loaded
                                 setTimeout(() => {
                                     setIsWebViewReady(true);
                                 }, 300);
@@ -198,22 +210,8 @@ export default function TradingScreen() {
                                         setFilter({timeframe: valueSelect})
                                     }}
                                 />
-                                <View style={styles.open_close_container}>
-                                    <XStack alignItems={"center"} gap={"$2"}>
-                                        <Paragraph>Mở</Paragraph>
-                                        <View style={styles.open_close_badge}>
-                                            <Paragraph>0</Paragraph>
-                                        </View>
-                                    </XStack>
-                                    <XStack alignItems={"center"} gap={"$2"}>
-                                        <Paragraph>Đóng</Paragraph>
-                                        <View style={styles.open_close_badge}>
-                                            <Paragraph>0</Paragraph>
-                                        </View>
-                                    </XStack>
-                                </View>
+                                <TransactionSection account={account} />
                             </XStack>
-
                         </XStack>
                         <View style={{
                             position: "relative",
@@ -265,24 +263,6 @@ export default function TradingScreen() {
 }
 
 const styles = StyleSheet.create({
-    open_close_container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "flex-start",
-        flexDirection: "row",
-        paddingHorizontal: 20,
-        gap: 20,
-        borderRadius: 10,
-        backgroundColor: DefaultColor.slate[200],
-    },
-    open_close_badge: {
-        width: 28,
-        height: 28,
-        borderRadius: 100,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: DefaultColor.slate[300],
-    },
     btn_trading: {
         width: "50%",
         alignItems: "center",
