@@ -16,6 +16,11 @@ import useNestedState from "@/lib/hooks/useNestedState";
 import {Account} from "@/api/account/type";
 import {Symbol} from "@/api/asset_trading/type";
 import {StoreTransactionRequestType} from "@/api/transaction/type";
+import {useMutation} from "@tanstack/react-query";
+import transactionAPI from "@/api/transaction";
+import {showMessage} from "react-native-flash-message";
+import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
+import useAppStore from "@/lib/store/appStore";
 
 const formatNumber = (num: number) => {
     return num.toFixed(2);
@@ -24,9 +29,21 @@ const parseToNumber = (text: string) => {
     const num = Number(text);
     return isNaN(num) ? 0 : num;
 };
-
+const calculateProfit = (price: number, percent: string, volume: string, type: "TP" | "SL") => {
+    const percentValue = parseToNumber(percent);
+    const volumeValue = parseToNumber(volume);
+    if (!percentValue || !volumeValue || percentValue < 0 || volumeValue <= 0) {
+        return 0;
+    }
+    if (type === "TP") {
+        return (price * volumeValue + ((price * percentValue / 100) * volumeValue)).toFixed(2);
+    }
+    else {
+        return (price * volumeValue - ((price * percentValue / 100) * volumeValue)).toFixed(2);
+    }
+}
 const SNAP_CLOSE = 35;
-const SNAP_OPEN = 65;
+const SNAP_OPEN = 70;
 
 type TransactionSheetProps = {
     open: boolean,
@@ -37,10 +54,29 @@ type TransactionSheetProps = {
     account: Account | null,
     symbol?: Symbol,
 }
+
 const TransactionSheet: FC<TransactionSheetProps> = (props) => {
     const [snapPoint, setSnapPoint] = useState(SNAP_CLOSE);
     const [openMore, setOpenMore] = useState<boolean>(false);
     const [tab, setTab] = useState<_TransactionTriggerType>(_TransactionTriggerType.TYPE_TRIGGER_AUTO_TRIGGER);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+    const {mutate, isPending} = useMutation({
+        mutationFn: (data: StoreTransactionRequestType) => transactionAPI.store(data),
+        onSuccess: async () => {
+            showMessage({
+                message: "Giao dịch thành công",
+                type: 'success',
+                duration: 3000,
+            });
+            props.setOpen(false);
+        },
+        onError: (error) => {
+            useShowErrorHandler(error);
+        }
+    })
+    const setLoading = useAppStore(state => state.setLoading);
+
 
     const [form, setForm] = useNestedState<StoreTransactionRequestType>({
         account_id: 0,
@@ -70,16 +106,16 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
         }
         if (form.percent_stop_loss){
             const stopLoss = parseToNumber(form.percent_stop_loss);
-            if (stopLoss < 0 || stopLoss > 100) {
-                setError({percent_stop_loss: "Cắt lỗ phải trong khoảng từ 0 đến 100 %", isError: true});
+            if (stopLoss < 0) {
+                setError({percent_stop_loss: "Cắt lỗ phải lớn hơn 0 %", isError: true});
             } else {
                 setError({percent_stop_loss: "", isError: false});
             }
         }
         if (form.percent_take_profit){
             const stopLoss = parseToNumber(form.percent_take_profit);
-            if (stopLoss < 0 || stopLoss > 100) {
-                setError({percent_take_profit: "Chốt lời phải trong khoảng từ 0 đến 100 %", isError: true});
+            if (stopLoss < 0) {
+                setError({percent_take_profit: "Chốt lời phải lớn hơn 0 %", isError: true});
             } else {
                 setError({percent_take_profit: "" , isError: false});
             }
@@ -114,6 +150,17 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
             }
         }else{
             setOpenMore(false);
+            setForm({
+                account_id: 0,
+                asset_trading_id: 0,
+                type: props.tradeType,
+                type_trigger: _TransactionTriggerType.TYPE_TRIGGER_NOW,
+                volume: "0.01",
+                entry_price: "",
+                trigger_price: "",
+                percent_take_profit: "",
+                percent_stop_loss: "",
+            })
         }
     }, [props.symbol, props.account, props.open]);
 
@@ -124,7 +171,6 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                 percent_stop_loss: "0.00",
             });
             if (tab === _TransactionTriggerType.TYPE_TRIGGER_AUTO_TRIGGER) {
-
                 setSnapPoint(SNAP_OPEN);
             } else {
                 setForm({trigger_price: props.price.toString()});
@@ -141,6 +187,19 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
             setForm({type_trigger: _TransactionTriggerType.TYPE_TRIGGER_NOW});
         }
     }, [openMore, tab]);
+
+    useEffect(() => {
+        const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+        const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
+
+    useEffect(() => {
+        setLoading(isPending);
+    }, [isPending]);
 
     return (
         <Sheet
@@ -161,10 +220,10 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
             />
             <Sheet.Handle/>
             <KeyboardAwareScrollView
-                keyboardShouldPersistTaps="always"
+                keyboardShouldPersistTaps="handled"
                 enableOnAndroid
-                extraScrollHeight={Platform.OS === "ios" ? 80 : 120}
                 showsVerticalScrollIndicator={false}
+                scrollEnabled={keyboardVisible}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Sheet.Frame padding="$4" gap="$2">
@@ -294,7 +353,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                                 />
                                                 {(form.percent_take_profit && parseToNumber(form.percent_take_profit) > 0 ) && (
                                                     <Paragraph color={DefaultColor.slate[500]}>
-                                                        Gía chốt lời: {(props.price * parseToNumber(form.percent_take_profit) / 100).toFixed(2)}
+                                                        Gía chốt lời:{calculateProfit(props.price, form.percent_take_profit, form.volume, "TP")}
                                                     </Paragraph>
                                                 )}
                                                 {error?.percent_take_profit && (
@@ -311,7 +370,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                                 />
                                                 {(form.percent_stop_loss && parseToNumber(form.percent_stop_loss) > 0 ) && (
                                                     <Paragraph color={DefaultColor.slate[500]}>
-                                                        Gía cắt lỗ: {(props.price * parseToNumber(form.percent_stop_loss) / 100).toFixed(2)}
+                                                        Gía cắt lỗ:{calculateProfit(props.price, form.percent_stop_loss, form.volume, "SL")}
                                                     </Paragraph>
                                                 )}
                                                 {error?.percent_stop_loss && (
@@ -326,12 +385,25 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                         <XStack gap="$2" alignItems="center" marginTop={"$4"}>
                             <Button onPress={() => props.setOpen(false)}>Hủy</Button>
                             <Button
+                                disabled={error.isError}
                                 flex={1} theme={props.tradeType === _TradeType.BUY ? "blue" : "red"}
-                                backgroundColor={props.tradeType === _TradeType.BUY ? "#168BFC" : "#EC4841"}
+                                backgroundColor={props.tradeType === _TradeType.BUY ?
+                                    (error.isError ? DefaultColor.blue[300] : DefaultColor.blue[500]) :
+                                    (error.isError ? DefaultColor.blue[300] : DefaultColor.blue[500])}
                                 color="#fff"
                                 fontWeight="bold"
                                 onPress={() => {
-
+                                    mutate({
+                                        account_id: form.account_id,
+                                        asset_trading_id: form.asset_trading_id,
+                                        type: form.type,
+                                        type_trigger: form.type_trigger,
+                                        volume: form.volume,
+                                        entry_price: form.entry_price,
+                                        trigger_price: form.trigger_price,
+                                        percent_take_profit: form.percent_take_profit,
+                                        percent_stop_loss: form.percent_stop_loss,
+                                    })
                                 }}
                             >
                                 <YStack alignItems="center" justifyContent="center">
