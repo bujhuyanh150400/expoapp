@@ -20,16 +20,16 @@ const TransactionSection:FC<Props> = (props) => {
                 <Paragraph fontSize={12} fontWeight={(total?.open ?? 0) > 0 ? 700 : "normal"}>Mở</Paragraph>
                 <View style={[
                     styles.open_close_badge,
-                    {backgroundColor: (total?.open ?? 0) > 0 ? DefaultColor.yellow[100] : DefaultColor.slate[300]}
+                    {backgroundColor: (total?.open ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
                 ]}>
                     <Paragraph>{total?.open ?? 0}</Paragraph>
                 </View>
             </XStack>
             <XStack alignItems={"center"} gap={"$2"}>
-                <Paragraph fontSize={12} fontWeight={(total?.waiting ?? 0) > 0 ? 700 : "normal"}>Chờ</Paragraph>
+                <Paragraph fontSize={12} fontWeight={(total?.waiting ?? 0) > 0 ? 700 : "normal"}>Chờ giao dịch</Paragraph>
                 <View style={[
                     styles.open_close_badge,
-                    {backgroundColor: (total?.waiting ?? 0) > 0 ? DefaultColor.yellow[100] : DefaultColor.slate[300]}
+                    {backgroundColor: (total?.waiting ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
                 ]}>
                     <Paragraph>{total?.waiting ?? 0}</Paragraph>
                 </View>
@@ -38,7 +38,7 @@ const TransactionSection:FC<Props> = (props) => {
                 <Paragraph fontSize={12} fontWeight={(total?.close ?? 0) > 0 ? 700 : "normal"}>Đóng</Paragraph>
                 <View style={[
                     styles.open_close_badge,
-                    {backgroundColor: (total?.close ?? 0) > 0 ? DefaultColor.yellow[100] : DefaultColor.slate[300]}
+                    {backgroundColor: (total?.close ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
                 ]}>
                     <Paragraph>{total?.close ?? 0}</Paragraph>
                 </View>
@@ -52,14 +52,14 @@ export default TransactionSection;
 
 const styles = StyleSheet.create({
     open_close_container: {
-        flex: 1,
         alignItems: "center",
         justifyContent: "flex-start",
         flexDirection: "row",
-        gap: 10,
+        gap: 20,
         paddingHorizontal: 20,
+        paddingVertical: 10,
         borderRadius: 10,
-        backgroundColor: DefaultColor.slate[200],
+        backgroundColor: DefaultColor.slate[100],
     },
     open_close_badge: {
         width: 24,

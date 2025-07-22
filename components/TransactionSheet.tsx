@@ -160,7 +160,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                 asset_trading_id: 0,
                 type: props.tradeType,
                 type_trigger: _TransactionTriggerType.TYPE_TRIGGER_NOW,
-                volume: "0.01",
+                volume: "1.00",
                 entry_price: "",
                 trigger_price: "",
                 percent_take_profit: "",
@@ -353,7 +353,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                                 <Paragraph>Chốt lời</Paragraph>
                                                 <InputPlusMinus
                                                     value={form.percent_take_profit || ""}
-                                                    reference={0.01}
+                                                    reference={1}
                                                     onChange={(value) => setForm({percent_take_profit: value})}
                                                     pre={"+%"}
                                                 />
@@ -371,7 +371,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                                 <Paragraph>Cắt lỗ</Paragraph>
                                                 <InputPlusMinus
                                                     value={form.percent_stop_loss || ""}
-                                                    reference={0.01}
+                                                    reference={1}
                                                     onChange={(value) => setForm({percent_stop_loss: value})}
                                                     pre={"-%"}
                                                 />

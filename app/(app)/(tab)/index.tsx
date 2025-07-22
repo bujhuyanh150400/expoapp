@@ -39,8 +39,6 @@ const tabs: TabItem[] = [
 const OpenTransactionTab = () => {
 
 
-
-
 }
 
 const AccountTabScreen = () => {

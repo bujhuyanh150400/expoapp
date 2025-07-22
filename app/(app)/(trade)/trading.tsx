@@ -127,33 +127,36 @@ export default function TradingScreen() {
                 <View style={{
                     paddingHorizontal: 20
                 }}>
-                    <XStack alignItems={"center"} gap={"$2"}>
-                        {/*Symbol info*/}
-                        <YStack gap={"$2"}>
-                            <XStack alignItems={"flex-start"} justifyContent={"center"} gap={"$2"}>
-                                {queryItemSymbol.data &&
-                                    <SymbolAssetIcons
-                                        symbol={queryItemSymbol.data.symbol}
-                                        currency_base={queryItemSymbol.data.currency_base}
-                                        currency_quote={queryItemSymbol.data.currency_quote || ''}
-                                        size={18}
-                                    />
-                                }
-                                <YStack>
-                                    {queryItemSymbol.data ? <Paragraph fontSize={20}
-                                                                       fontWeight={700}>{queryItemSymbol.data.symbol}</Paragraph> :
-                                        <SkeletonFade/>}
-                                    {queryItemSymbol.data ? (
-                                        <Paragraph fontSize={12} fontWeight={500} color={DefaultColor.slate[400]}
-                                                   numberOfLines={1} maxWidth={200}>
-                                            {queryItemSymbol.data.currency_base}
-                                            {queryItemSymbol.data.currency_quote ? `vs ${queryItemSymbol.data.currency_quote}` : ''}
-                                        </Paragraph>
-                                    ) : <SkeletonFade/>}
-                                </YStack>
-                            </XStack>
-                        </YStack>
-                    </XStack>
+                    <YStack gap={"$2"} marginBottom={"$2"}>
+                        <XStack alignItems={"center"} gap={"$2"}>
+                            {/*Symbol info*/}
+                            <YStack gap={"$2"}>
+                                <XStack alignItems={"flex-start"} justifyContent={"center"} gap={"$2"}>
+                                    {queryItemSymbol.data &&
+                                        <SymbolAssetIcons
+                                            symbol={queryItemSymbol.data.symbol}
+                                            currency_base={queryItemSymbol.data.currency_base}
+                                            currency_quote={queryItemSymbol.data.currency_quote || ''}
+                                            size={18}
+                                        />
+                                    }
+                                    <YStack>
+                                        {queryItemSymbol.data ? <Paragraph fontSize={20}
+                                                                           fontWeight={700}>{queryItemSymbol.data.symbol}</Paragraph> :
+                                            <SkeletonFade/>}
+                                        {queryItemSymbol.data ? (
+                                            <Paragraph fontSize={12} fontWeight={500} color={DefaultColor.slate[400]}
+                                                       numberOfLines={1} maxWidth={200}>
+                                                {queryItemSymbol.data.currency_base}
+                                                {queryItemSymbol.data.currency_quote ? `vs ${queryItemSymbol.data.currency_quote}` : ''}
+                                            </Paragraph>
+                                        ) : <SkeletonFade/>}
+                                    </YStack>
+                                </XStack>
+                            </YStack>
+                        </XStack>
+                        <TransactionSection account={account} />
+                    </YStack>
                 </View>
 
                 {/*Chart*/}
@@ -210,7 +213,6 @@ export default function TradingScreen() {
                                         setFilter({timeframe: valueSelect})
                                     }}
                                 />
-                                <TransactionSection account={account} />
                             </XStack>
                         </XStack>
                         <View style={{
