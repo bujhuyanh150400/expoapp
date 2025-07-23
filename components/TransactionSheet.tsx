@@ -315,7 +315,7 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
                                         ]}
                                         activeKey={tab}
                                         onTabPress={setTab}
-                                        style={{
+                                        styleContainer={{
                                             marginBottom: 20
                                         }}
                                     />

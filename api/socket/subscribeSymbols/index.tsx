@@ -3,7 +3,7 @@ import {useContext, useEffect, useRef} from "react";
 import {WebSocketContext} from "@/api/socket/provider";
 
 
-const useSubscribeSymbols = (symbols: string[], userId?: number, secret?: string) => {
+const useSubscribeSymbols = (symbols: string[], userId?: number, secret?: string, enable:boolean = true) => {
     const ws = useContext(WebSocketContext);
     const { updatePrice, setSubscribedSymbols } = useSubscribeSymbolStore();
     const mountedSymbols = useRef<Set<string>>(new Set());
@@ -15,7 +15,7 @@ const useSubscribeSymbols = (symbols: string[], userId?: number, secret?: string
         const toSub = symbols.filter((s) => !mountedSymbols.current.has(s));
         const toUnsub = Array.from(mountedSymbols.current).filter((s) => !symbols.includes(s));
         // Gửi subscribe
-        if (toSub.length > 0) {
+        if (toSub.length > 0 && enable) {
             ws.send(
                 JSON.stringify({
                     action: 'subscribe',
@@ -34,7 +34,7 @@ const useSubscribeSymbols = (symbols: string[], userId?: number, secret?: string
         }
         mountedSymbols.current = new Set(symbols);
         setSubscribedSymbols(new Set(symbols));
-    }, [ws, userId, secret, symbols.join(',')]);
+    }, [ws, userId, secret, symbols.join(','), enable]);
 
 
     useEffect(() => {

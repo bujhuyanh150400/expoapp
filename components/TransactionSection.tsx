@@ -4,6 +4,7 @@ import React, {FC} from "react";
 import DefaultColor from "@/components/ui/DefaultColor";
 import {Account} from "@/api/account/type";
 import {useTransactionTotal} from "@/lib/hooks/useTransactionTotal";
+import DefaultStyle from "@/components/ui/DefaultStyle";
 
 
 type Props = {
@@ -19,7 +20,7 @@ const TransactionSection:FC<Props> = (props) => {
             <XStack alignItems={"center"} gap={"$2"}>
                 <Paragraph fontSize={12} fontWeight={(total?.open ?? 0) > 0 ? 700 : "normal"}>Mở</Paragraph>
                 <View style={[
-                    styles.open_close_badge,
+                    DefaultStyle.badgeCircle,
                     {backgroundColor: (total?.open ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
                 ]}>
                     <Paragraph>{total?.open ?? 0}</Paragraph>
@@ -28,7 +29,7 @@ const TransactionSection:FC<Props> = (props) => {
             <XStack alignItems={"center"} gap={"$2"}>
                 <Paragraph fontSize={12} fontWeight={(total?.waiting ?? 0) > 0 ? 700 : "normal"}>Chờ giao dịch</Paragraph>
                 <View style={[
-                    styles.open_close_badge,
+                    DefaultStyle.badgeCircle,
                     {backgroundColor: (total?.waiting ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
                 ]}>
                     <Paragraph>{total?.waiting ?? 0}</Paragraph>
@@ -37,7 +38,7 @@ const TransactionSection:FC<Props> = (props) => {
             <XStack alignItems={"center"} gap={"$2"}>
                 <Paragraph fontSize={12} fontWeight={(total?.close ?? 0) > 0 ? 700 : "normal"}>Đóng</Paragraph>
                 <View style={[
-                    styles.open_close_badge,
+                    DefaultStyle.badgeCircle,
                     {backgroundColor: (total?.close ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
                 ]}>
                     <Paragraph>{total?.close ?? 0}</Paragraph>
@@ -60,13 +61,5 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 10,
         backgroundColor: DefaultColor.slate[100],
-    },
-    open_close_badge: {
-        width: 24,
-        height: 24,
-        borderRadius: 100,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: DefaultColor.slate[300],
     },
 })

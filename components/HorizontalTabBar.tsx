@@ -20,10 +20,17 @@ type Props<T extends string | number> = {
     tabs: TabRender<T>[];
     activeKey: T;
     onTabPress: (key: T) => void;
-    style?: ViewStyle;
+    styleContainer?: ViewStyle;
+    styleTab?: ViewStyle;
 };
 
-function HorizontalTabBar<T extends string | number>({tabs, activeKey, onTabPress, style}: Props<T>) {
+function HorizontalTabBar<T extends string | number>({
+                                                         tabs,
+                                                         activeKey,
+                                                         onTabPress,
+                                                         styleContainer,
+                                                         styleTab
+                                                     }: Props<T>) {
     const scrollRef = useRef<ScrollView>(null);
     const tabRefs = useRef<Map<string, View>>(new Map());
 
@@ -32,14 +39,14 @@ function HorizontalTabBar<T extends string | number>({tabs, activeKey, onTabPres
             horizontal
             ref={scrollRef}
             showsHorizontalScrollIndicator={false}
-            style={[styles.tabContainer, style]}
+            style={[styles.tabContainer, styleContainer]}
         >
             {tabs.map((tab) => {
                 const isActive = tab.key === activeKey;
                 return (
                     <TouchableOpacity
                         key={tab.key as string}
-                        style={[styles.tabItem, isActive && styles.tabItemActive]}
+                        style={[styles.tabItem, styleTab, isActive && styles.tabItemActive]}
                         onPress={() => {
                             onTabPress(tab.key)
                             const tabRef = tabRefs.current.get(tab.key as string);

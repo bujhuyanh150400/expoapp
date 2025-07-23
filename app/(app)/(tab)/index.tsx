@@ -11,6 +11,7 @@ import DefaultStyle from "@/components/ui/DefaultStyle";
 import DefaultColor from "@/components/ui/DefaultColor";
 import useAppStore from "@/lib/store/appStore";
 import useGetAccountActive from "@/lib/hooks/useGetAccountActive";
+import TransactionTabs from "@/components/TransactionTabs";
 
 
 const tabs: TabItem[] = [
@@ -65,7 +66,7 @@ const AccountTabScreen = () => {
     const activeAccount = queryAccountActive.account;
 
     return (
-        <LayoutScrollApp title="Tài khoản">
+        <LayoutScrollApp title="Tài khoản" style={{backgroundColor: DefaultColor.white}}>
             <Card elevate size="$4" bordered backgroundColor="white" marginBottom={15}>
                 <Card.Header padded>
                     {queryAccountActive.isSuccess && activeAccount && (
@@ -198,9 +199,8 @@ const AccountTabScreen = () => {
                     }
                 </Card.Footer>
             </Card>
-            <AnimatedTabsLayout tabs={tabs} initialTab="open"/>
 
-
+            <TransactionTabs account={queryAccountActive.account} showTotal={true} />
         </LayoutScrollApp>
     )
 

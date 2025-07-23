@@ -1,4 +1,5 @@
 import {StyleSheet} from "react-native";
+import DefaultColor from "@/components/ui/DefaultColor";
 
 const DefaultStyle = StyleSheet.create({
     circleButton: {
@@ -19,6 +20,14 @@ const DefaultStyle = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    badgeCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 100,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: DefaultColor.slate[300],
     }
 })
 

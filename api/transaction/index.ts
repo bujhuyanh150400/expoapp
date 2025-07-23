@@ -2,7 +2,7 @@ import {client} from "@/api/client";
 import {
     StoreTransactionRequestType,
     StoreTransactionResponseType,
-    TotalTransactionRequestType
+    TotalTransactionRequestType, TransactionHistoryRequestType, TransactionHistoryResponseType
 } from "@/api/transaction/type";
 import {ResponseSuccessType} from "@/api/commonType";
 
@@ -15,6 +15,14 @@ const transactionAPI = {
     total: async (data: TotalTransactionRequestType): Promise<StoreTransactionResponseType> => {
         const response = await client.get(`${prefix}/total/${data.account_id}`);
         return response.data;
-    }
+    },
+    history: async (data: TransactionHistoryRequestType): Promise<TransactionHistoryResponseType> => {
+        const response = await client.get(`${prefix}/history/${data.account_id}`, {
+            params: {
+                status: data.status,
+            }
+        });
+        return response.data;
+    },
 }
 export default transactionAPI

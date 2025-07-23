@@ -56,11 +56,6 @@ export enum _AssetType {
     FAVORITE = 5,
 }
 
-export enum _TradeType {
-    BUY = 0,
-    SELL = 1,
-}
-
 export enum _SupportTicketType {
     TECHNICAL = 1,
     PAYMENT = 2,
@@ -108,6 +103,12 @@ export const TIME_FRAME_SELECT = [
     {label: '1 tuần', unit: "1w", value: _Timeframe.OneWeek},
 ];
 
+
+export enum _TradeType {
+    BUY = 0,
+    SELL = 1,
+}
+
 export enum _TransactionTriggerType {
     TYPE_TRIGGER_NOW = 1,
     TYPE_TRIGGER_AUTO_TRIGGER = 2,
@@ -115,4 +116,8 @@ export enum _TransactionTriggerType {
     TYPE_TRIGGER_HIGH_BUY = 4
 }
 
-
+export enum _TransactionStatus {
+    OPEN = 1,
+    WAITING = 2,
+    CLOSED = 3,
+}
