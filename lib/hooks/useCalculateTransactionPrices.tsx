@@ -3,6 +3,7 @@ import {useMemo} from "react";
 import useAuthStore from "@/lib/store/authStore";
 import useSubscribeSymbols from "@/api/socket/subscribeSymbols";
 import useWebsocketSymbolStore from "@/api/socket/subscribeSymbols/store";
+import {_TransactionStatus} from "@/lib/@type";
 
 export type CalculateTransactionPrices = Transaction & {
     profit?: number;
@@ -35,6 +36,14 @@ const useCalculateTransactionPrices = (transaction: Transaction[], enable: boole
                 realtime_price: symbolPrice.price,
                 entry_volume_price: entryVolumePrice,
                 realtime_volume_price: realtimeVolumePrice,
+            });
+        }else if (item.status === _TransactionStatus.CLOSED && item.close_price) {
+            const entryVolumePrice = item.entry_price * item.volume;
+            const closedVolumePrice = item.close_price * item.volume;
+            const profit = (closedVolumePrice - entryVolumePrice);
+            acc.data.push({
+                ...item,
+                profit: profit,
             });
         }
         return acc;
