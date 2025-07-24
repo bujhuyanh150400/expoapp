@@ -2,7 +2,10 @@ import {client} from "@/api/client";
 import {
     StoreTransactionRequestType,
     StoreTransactionResponseType,
-    TotalTransactionRequestType, TransactionHistoryRequestType, TransactionHistoryResponseType
+    TotalTransactionRequestType,
+    TransactionClosedRequestType,
+    TransactionHistoryRequestType,
+    TransactionHistoryResponseType
 } from "@/api/transaction/type";
 import {ResponseSuccessType} from "@/api/commonType";
 
@@ -22,6 +25,10 @@ const transactionAPI = {
                 status: data.status,
             }
         });
+        return response.data;
+    },
+    closed: async (data: TransactionClosedRequestType): Promise<ResponseSuccessType> => {
+        const response = await client.post(`${prefix}/close`, data);
         return response.data;
     },
 }

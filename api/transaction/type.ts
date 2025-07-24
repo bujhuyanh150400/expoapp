@@ -31,6 +31,7 @@ export type Transaction = {
     "id": number,
     "type": _TradeType,
     "volume": number,
+    "code": string,
     "type_trigger": _TransactionTriggerType,
     "entry_price": number,
     "close_price": number | null,
@@ -52,4 +53,9 @@ export type TransactionHistoryRequestType = {
 export type TransactionHistoryResponseType = {
     message: string,
     data: Transaction[]
+}
+
+export type TransactionClosedRequestType = {
+    transaction_id: number;
+    close_price: number;
 }

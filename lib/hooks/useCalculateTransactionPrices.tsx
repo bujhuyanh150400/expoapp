@@ -23,34 +23,45 @@ const useCalculateTransactionPrices = (transaction: Transaction[], enable: boole
 
     const prices = useWebsocketSymbolStore((s) => s.prices);
 
-    return transaction.reduce((acc, item) => {
-        const symbolPrice = prices[item.symbol.symbol];
-        if (symbolPrice) {
-            const entryVolumePrice = item.entry_price * item.volume;
-            const realtimeVolumePrice = symbolPrice.price * item.volume;
-            const profit = (realtimeVolumePrice - entryVolumePrice);
-            acc.total += profit;
-            acc.data.push({
-                ...item,
-                profit: profit,
-                realtime_price: symbolPrice.price,
-                entry_volume_price: entryVolumePrice,
-                realtime_volume_price: realtimeVolumePrice,
-            });
-        }else if (item.status === _TransactionStatus.CLOSED && item.close_price) {
-            const entryVolumePrice = item.entry_price * item.volume;
-            const closedVolumePrice = item.close_price * item.volume;
-            const profit = (closedVolumePrice - entryVolumePrice);
-            acc.data.push({
-                ...item,
-                profit: profit,
-            });
-        }
-        return acc;
-    }, {
-        total: 0,
-        data: [] as CalculateTransactionPrices[]
-    })
+    return useMemo(() => {
+        return transaction.reduce((acc, item) => {
+            const symbolPrice = prices[item.symbol.symbol];
+            if (symbolPrice) {
+                const entryVolumePrice = item.entry_price * item.volume;
+                const realtimeVolumePrice = symbolPrice.price * item.volume;
+                if (item.status === _TransactionStatus.OPEN){
+                    const profit = (realtimeVolumePrice - entryVolumePrice);
+                    acc.total += profit;
+                    acc.data.push({
+                        ...item,
+                        profit: profit,
+                        realtime_price: symbolPrice.price,
+                        entry_volume_price: entryVolumePrice,
+                        realtime_volume_price: realtimeVolumePrice,
+                    });
+                }
+                if (item.status === _TransactionStatus.WAITING) {
+                    acc.data.push({
+                        ...item,
+                        realtime_price: symbolPrice.price,
+                    });
+                }
+
+            }else if (item.status === _TransactionStatus.CLOSED && item.close_price) {
+                const entryVolumePrice = item.entry_price * item.volume;
+                const closedVolumePrice = item.close_price * item.volume;
+                const profit = (closedVolumePrice - entryVolumePrice);
+                acc.data.push({
+                    ...item,
+                    profit: profit,
+                });
+            }
+            return acc;
+        }, {
+            total: 0,
+            data: [] as CalculateTransactionPrices[]
+        })
+    },[prices, transaction])
 }
 
 export default useCalculateTransactionPrices;

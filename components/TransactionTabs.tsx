@@ -1,18 +1,22 @@
 import {Account} from "@/api/account/type";
-import {Dispatch, FC, SetStateAction, useEffect, useState, useRef, MutableRefObject} from "react";
-import {_TradeType, _TransactionStatus} from "@/lib/@type";
-import {Button, Card, Paragraph, Sheet, XStack, YStack} from "tamagui";
+import {Dispatch, FC, MutableRefObject, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
+import {_TradeType, _TransactionStatus, _TransactionTriggerType} from "@/lib/@type";
+import {Button, Card, Paragraph, Separator, Sheet, XStack, YStack} from "tamagui";
 import DefaultColor from "@/components/ui/DefaultColor";
 import HorizontalTabBar from "@/components/HorizontalTabBar";
 import DefaultStyle from "@/components/ui/DefaultStyle";
-import {ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Alert, ScrollView, TouchableOpacity, View} from "react-native";
 import useNestedState from "@/lib/hooks/useNestedState";
-import {TransactionHistoryRequestType} from "@/api/transaction/type";
+import {TransactionClosedRequestType, TransactionHistoryRequestType} from "@/api/transaction/type";
 import useTransactionHistory from "@/lib/hooks/useTransactionHistory";
 import {useTransactionTotal} from "@/lib/hooks/useTransactionTotal";
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
 import SkeletonFade from "@/components/SkeletonFade";
 import useCalculateTransactionPrices, {CalculateTransactionPrices} from "@/lib/hooks/useCalculateTransactionPrices";
+import {useMutation} from "@tanstack/react-query";
+import transactionAPI from "@/api/transaction";
+import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
+import {showMessage} from "react-native-flash-message";
 
 
 type Props = {
@@ -40,6 +44,11 @@ const TransactionTabs: FC<Props> = (props) => {
 
     const hookCalculate = useCalculateTransactionPrices(transactionsData, filter.status === _TransactionStatus.OPEN || filter.status === _TransactionStatus.WAITING);
 
+    useEffect(() => {
+        if (query.isRefetching) {
+            hookTotal.query.refetch()
+        }
+    }, [query.isRefetching]);
 
     useEffect(() => {
         if (props.account) {
@@ -90,7 +99,7 @@ const TransactionTabs: FC<Props> = (props) => {
                     {
                         key: _TransactionStatus.WAITING,
                         item: (isActive) => (
-                            <XStack>
+                            <XStack gap={"$2"}>
                                 <Paragraph
                                     style={{
                                         color: isActive ? DefaultColor.black : DefaultColor.slate[300],
@@ -174,52 +183,22 @@ const TransactionTabs: FC<Props> = (props) => {
                                                 <XStack alignItems={"flex-start"} justifyContent={"space-between"}
                                                         gap={"$2"}>
                                                     {/*symbol and info*/}
-                                                    <XStack alignItems={"flex-start"} justifyContent={"flex-start"}
-                                                            gap={"$2"}>
-                                                        <SymbolAssetIcons
-                                                            symbol={item.symbol.symbol}
-                                                            currency_base={item.symbol.currency_base}
-                                                            currency_quote={item.symbol.currency_quote || ''}
-                                                            size={18}
-                                                        />
-                                                        <YStack gap={"$2"}>
-                                                            <Paragraph fontSize={16}
-                                                                       fontWeight={700}>{item.symbol.symbol}</Paragraph>
-                                                            <XStack gap={"$1"} alignItems={"center"}>
-                                                                <Paragraph fontSize={14} fontWeight={500}
-                                                                           color={item.type === _TradeType.BUY ? DefaultColor.blue[500] : DefaultColor.red[500]}>
-                                                                    {item.type === _TradeType.BUY ? 'Mua' : 'Bán'} {item.volume.toFixed(2)} lô
-                                                                </Paragraph>
-                                                                <Paragraph fontSize={14} fontWeight={500}
-                                                                           color={DefaultColor.slate[400]}>
-                                                                    at {item.entry_price.toFixed(2)}
-                                                                </Paragraph>
-                                                            </XStack>
-                                                        </YStack>
-                                                    </XStack>
-                                                    <YStack gap={"$2"} alignItems={"flex-end"}>
-                                                        {filter.status === _TransactionStatus.OPEN &&
-                                                            (<>
-                                                                {item.profit ? (
-                                                                    <Paragraph fontSize={14} fontWeight={500}
-                                                                               color={item.profit > 0 ? DefaultColor.green[500] : DefaultColor.red[500]}>
-                                                                        {item.profit.toFixed(2)}
-                                                                    </Paragraph>
-                                                                ) : <SkeletonFade/>}
-                                                                {item.realtime_price ? (
-                                                                    <Paragraph fontSize={14} fontWeight={500}
-                                                                               color={DefaultColor.slate[400]}>
-                                                                        {item.realtime_price.toFixed(2)}
-                                                                    </Paragraph>
-                                                                ) : <SkeletonFade/>}
-                                                            </>)
-                                                        }
-                                                    </YStack>
+                                                    <SymbolAndInfo item={item} />
                                                 </XStack>
                                             </Card>
                                         </TouchableOpacity>
                                     )
                                 })}
+
+                                {filter.status === _TransactionStatus.CLOSED && (
+                                    <>
+                                        <Separator marginVertical={15} />
+                                        <YStack flex={1} paddingBottom={20} alignItems="center"
+                                                justifyContent="center" gap="$4">
+                                            <Paragraph textAlign="center" color={DefaultColor.slate[400]} theme="alt2">Hiển thị các giao dịch đóng trong vòng 30 ngày trở lại gần đây</Paragraph>
+                                        </YStack>
+                                    </>
+                                )}
                             </> :
                             (
                                 <YStack flex={1} paddingTop={20} paddingBottom={20} alignItems="center"
@@ -233,18 +212,136 @@ const TransactionTabs: FC<Props> = (props) => {
                     </>
                 )}
             </ContentWrapper>
-            <TransactionInfo item={selectedTransactionRef} setOpen={setOpenInfo} open={openInfo} hookCalculate={hookCalculate} />
+            <TransactionInfoSheet
+                item={selectedTransactionRef}
+                setOpen={setOpenInfo}
+                open={openInfo}
+                hookCalculate={hookCalculate}
+                query={query}
+            />
         </>
     )
 }
 
+const SymbolAndInfo: FC<{item: CalculateTransactionPrices}> = ({item}) => (
+    <XStack alignItems={"flex-start"} justifyContent={"space-between"} gap={"$2"} flex={1}>
+        {/*symbol and info*/}
+        <XStack alignItems={"flex-start"} justifyContent={"flex-start"} gap={"$2"}>
+            <SymbolAssetIcons
+                symbol={item.symbol.symbol}
+                currency_base={item.symbol.currency_base}
+                currency_quote={item.symbol.currency_quote || ''}
+                size={18}
+            />
+            <YStack gap={"$2"}>
+                <Paragraph fontSize={16}
+                           fontWeight={700}>{item.symbol.symbol}</Paragraph>
+                <XStack gap={"$1"} alignItems={"center"}>
+                    <Paragraph fontSize={14} fontWeight={500}
+                               color={item.type === _TradeType.BUY ? DefaultColor.blue[500] : DefaultColor.red[500]}>
+                        {item.type === _TradeType.BUY ? 'Mua' : 'Bán'} {item.volume.toFixed(2)} lô
+                    </Paragraph>
+                    <Paragraph fontSize={14} fontWeight={500}
+                               color={DefaultColor.slate[400]}>
+                        at {item.entry_price.toFixed(2)}
+                    </Paragraph>
+                </XStack>
+            </YStack>
+        </XStack>
+        <YStack gap={"$2"} alignItems={"flex-end"}>
+            {item.status === _TransactionStatus.OPEN &&
+                (<>
+                    {item.profit ? (
+                        <Paragraph fontSize={14} fontWeight={500}
+                                   color={item.profit > 0 ? DefaultColor.green[500] : DefaultColor.red[500]}>
+                            {item.profit.toFixed(2)}
+                        </Paragraph>
+                    ) : <SkeletonFade/>}
+                    {item.realtime_price ? (
+                        <Paragraph fontSize={14} fontWeight={500}
+                                   color={DefaultColor.slate[400]}>
+                            {item.realtime_price.toFixed(2)}
+                        </Paragraph>
+                    ) : <SkeletonFade/>}
+                </>)
+            }
+            {item.status === _TransactionStatus.WAITING &&
+                (
+                    <>
+                        {item.trigger_price ? (
+                            <Paragraph fontSize={14} fontWeight={500}
+                                       color={DefaultColor.slate[400]}>
+                                open {item.trigger_price.toFixed(2)}
+                            </Paragraph>
+                        ) : <SkeletonFade/>}
+                        {item.realtime_price ? (
+                            <Paragraph fontSize={14} fontWeight={500}
+                                       color={DefaultColor.slate[400]}>
+                                {item.realtime_price.toFixed(2)}
+                            </Paragraph>
+                        ) : <SkeletonFade/>}
+                    </>
+                )
+            }
+            {item.status === _TransactionStatus.CLOSED &&
+                (
+                    <>
+                        <Paragraph fontSize={14} fontWeight={500} color={DefaultColor.slate[400]}>
+                            {item.close_price ? item.close_price.toFixed(2) : '__'}
+                        </Paragraph>
+                    </>
+                )
+            }
+        </YStack>
+    </XStack>
+)
 
-const TransactionInfo: FC<{
+const TransactionInfoSheet: FC<{
     item: MutableRefObject<number | null>;
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    hookCalculate: ReturnType<typeof useCalculateTransactionPrices>
-}> = ({item, open, setOpen, hookCalculate}) => {
+    hookCalculate: ReturnType<typeof useCalculateTransactionPrices>,
+    query: ReturnType<typeof useTransactionHistory>['query']
+}> = ({item, open, setOpen, hookCalculate, query}) => {
+    const onClosed = useCallback((open: boolean) => {
+        setOpen(open);
+        if (!open) item.current = null;
+    }, []);
+
+    const {mutate, isPending} = useMutation({
+        mutationFn: (data: TransactionClosedRequestType) => transactionAPI.closed(data),
+        onSuccess: async (_) => {
+            query.refetch();
+            showMessage({
+                message: "Chốt giao dịch thành công",
+                type: 'success',
+                duration: 3000,
+            });
+            onClosed(false);
+        },
+        onError: (error) => {
+            useShowErrorHandler({error});
+        }
+    });
+
+    const onCloseTransaction = useCallback((data: CalculateTransactionPrices) => {
+        Alert.alert('Đóng giao dịch', 'Bạn có chắc chắn muốn đóng giao dịch này?',
+            [
+                {text: 'Hủy', style: 'cancel'},
+                {
+                    text: 'Đóng giao dịch',
+                    onPress: () => {
+                        if (data.id) {
+                            mutate({
+                                transaction_id: data.id,
+                                close_price: data.realtime_price || 0
+                            });
+                        }
+                    }
+                }
+            ]);
+    }, [mutate]);
+
     const data = hookCalculate.data.find(tx => tx.id === item.current);
 
     return (
@@ -253,18 +350,15 @@ const TransactionInfo: FC<{
             modal={true}
             open={open}
             onOpenChange={(open: boolean) => {
-                setOpen(open);
-                if (!open) {
-                   item.current = null;
-                }
+                onClosed(open);
             }}
             snapPointsMode={"fit"}
             dismissOnSnapToBottom
             zIndex={200_000}
-            animation={"manual"}
+            animation={"fast"}
         >
             <Sheet.Overlay
-                animation="manual"
+                animation="lazy"
                 backgroundColor="$shadow6"
                 enterStyle={{opacity: 0}}
                 exitStyle={{opacity: 0}}
@@ -273,49 +367,24 @@ const TransactionInfo: FC<{
             <Sheet.Frame padding="$4" gap="$2">
                 {data && (
                     <YStack gap={"$2"}>
-                        <XStack alignItems={"flex-start"} justifyContent={"space-between"} marginBottom={"$2"}>
-                            <XStack alignItems={"flex-start"} justifyContent={"flex-start"}
-                                    gap={"$2"}>
-                                <SymbolAssetIcons
-                                    symbol={data.symbol.symbol}
-                                    currency_base={data.symbol.currency_base}
-                                    currency_quote={data.symbol.currency_quote || ''}
-                                    size={18}
-                                />
-                                <YStack gap={"$2"}>
-                                    <Paragraph fontSize={16}
-                                               fontWeight={700}>{data.symbol.symbol}</Paragraph>
-                                    <XStack gap={"$1"} alignItems={"center"}>
-                                        <Paragraph fontSize={14} fontWeight={500}
-                                                   color={data.type === _TradeType.BUY ? DefaultColor.blue[500] : DefaultColor.red[500]}>
-                                            {data.type === _TradeType.BUY ? 'Mua' : 'Bán'} {data.volume.toFixed(2)} lô
-                                        </Paragraph>
-                                        <Paragraph fontSize={14} fontWeight={500}
-                                                   color={DefaultColor.slate[400]}>
-                                            at {data.entry_price.toFixed(2)}
-                                        </Paragraph>
-                                    </XStack>
-                                </YStack>
-                            </XStack>
-                            <YStack gap={"$2"} alignItems={"flex-end"}>
-                                {data.status === _TransactionStatus.OPEN &&
-                                    (<>
-                                        {data.profit ? (
-                                            <Paragraph fontSize={14} fontWeight={500}
-                                                       color={data.profit > 0 ? DefaultColor.green[500] : DefaultColor.red[500]}>
-                                                {data.profit.toFixed(2)}
-                                            </Paragraph>
-                                        ) : <SkeletonFade/>}
-                                        {data.realtime_price ? (
-                                            <Paragraph fontSize={14} fontWeight={500}
-                                                       color={DefaultColor.slate[400]}>
-                                                {data.realtime_price.toFixed(2)}
-                                            </Paragraph>
-                                        ) : <SkeletonFade/>}
-                                    </>)
-                                }
-                            </YStack>
+                        <XStack alignItems={"center"} justifyContent={"center"}>
+                            <Paragraph fontWeight={500} fontSize={12} color={DefaultColor.slate[500]} alignItems={"center"}>#{data.code}</Paragraph>
                         </XStack>
+                        {/*symbol info*/}
+                        <SymbolAndInfo item={data} />
+                        {data.status === _TransactionStatus.WAITING && (
+                            <>
+                                <XStack alignItems={"center"} justifyContent={"space-between"}>
+                                    <Paragraph fontWeight={500} color={DefaultColor.slate[500]}>Mở giao dịch lúc:</Paragraph>
+                                    <Paragraph fontWeight={500} color={DefaultColor.slate[700]}>
+                                        {data.type_trigger === _TransactionTriggerType.TYPE_TRIGGER_LOW_BUY && 'Giá thấp'}
+                                        {data.type_trigger === _TransactionTriggerType.TYPE_TRIGGER_HIGH_BUY && 'Giá cao'}
+                                    </Paragraph>
+                                </XStack>
+
+                            </>
+                        )}
+                        {/*Trạng thái*/}
                         <XStack alignItems={"center"} justifyContent={"space-between"}>
                             <Paragraph fontWeight={500} color={DefaultColor.slate[500]}>Trạng thái:</Paragraph>
                             <Paragraph fontWeight={500} color={DefaultColor.slate[700]}>
@@ -338,7 +407,7 @@ const TransactionInfo: FC<{
                                 {data.close_price ? data.close_price.toFixed(2) : '__'}
                             </Paragraph>
                         </XStack>
-                        {/*Giá đóng*/}
+                        {/*Lỗ/Lãi:*/}
                         <XStack alignItems={"center"} justifyContent={"space-between"}>
                             <Paragraph fontWeight={500} color={DefaultColor.slate[500]}>Lỗ/Lãi:</Paragraph>
                             {data.profit ? (
@@ -384,8 +453,15 @@ const TransactionInfo: FC<{
                             </Paragraph>
                         </XStack>
                         {data.status === _TransactionStatus.OPEN && (
-                            <Button>
-                                Đóng giao dịch
+                            <Button
+                                flex={1}
+                                disabled={isPending}
+                                marginTop={"$2"}
+                                onPress={() => {
+                                    onCloseTransaction(data);
+                                }}
+                            >
+                                {isPending ? 'Đang xử lý...' : 'Đóng giao dịch'}
                             </Button>
                         )}
                     </YStack>

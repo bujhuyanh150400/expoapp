@@ -1,13 +1,7 @@
 import {Button, Paragraph, Sheet, XStack, YStack} from "tamagui";
 import React, {Dispatch, FC, SetStateAction, useEffect, useState} from "react";
-import {
-    Keyboard, Platform,
-    StyleSheet, Text, TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
-} from "react-native";
-import {_TradeType, _TransactionTriggerType} from "@/lib/@type";
+import {Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {_TradeType, _TransactionStatus, _TransactionTriggerType} from "@/lib/@type";
 import {MaterialIcons} from '@expo/vector-icons';
 import DefaultColor from "@/components/ui/DefaultColor";
 import HorizontalTabBar from "@/components/HorizontalTabBar";
@@ -22,6 +16,7 @@ import {showMessage} from "react-native-flash-message";
 import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
 import useAppStore from "@/lib/store/appStore";
 import {useTransactionTotal} from "@/lib/hooks/useTransactionTotal";
+import useTransactionHistory from "@/lib/hooks/useTransactionHistory";
 
 const formatNumber = (num: number) => {
     return num.toFixed(2);
@@ -61,23 +56,6 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
     const [tab, setTab] = useState<_TransactionTriggerType>(_TransactionTriggerType.TYPE_TRIGGER_AUTO_TRIGGER);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const {query} = useTransactionTotal(props.account?.id || null);
-
-    const {mutate, isPending} = useMutation({
-        mutationFn: (data: StoreTransactionRequestType) => transactionAPI.store(data),
-        onSuccess: async () => {
-            showMessage({
-                message: "Giao dịch thành công",
-                type: 'success',
-                duration: 3000,
-            });
-            query.refetch().then(() => {
-                props.setOpen(false);
-            });
-        },
-        onError: (error) => {
-            useShowErrorHandler(error);
-        }
-    })
     const setLoading = useAppStore(state => state.setLoading);
 
 
@@ -99,6 +77,28 @@ const TransactionSheet: FC<TransactionSheetProps> = (props) => {
         trigger_price: "",
         percent_stop_loss: "",
         percent_take_profit: ""
+    })
+
+    const hookHistory = useTransactionHistory({
+        account_id: props.account?.id || 0,
+        status: [_TransactionTriggerType.TYPE_TRIGGER_HIGH_BUY,_TransactionTriggerType.TYPE_TRIGGER_LOW_BUY].includes(form.type_trigger) ? _TransactionStatus.WAITING : _TransactionStatus.OPEN
+    });
+    const {mutate, isPending} = useMutation({
+        mutationFn: (data: StoreTransactionRequestType) => transactionAPI.store(data),
+        onSuccess: async () => {
+            showMessage({
+                message: "Giao dịch thành công",
+                type: 'success',
+                duration: 3000,
+            });
+            query.refetch().then(() => {
+                props.setOpen(false);
+                hookHistory.query.refetch()
+            });
+        },
+        onError: (error) => {
+            useShowErrorHandler(error);
+        }
     })
 
     useEffect(() => {

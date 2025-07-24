@@ -9,6 +9,7 @@ import {
     SearchSymbolResponse
 } from "@/api/asset_trading/type";
 import {client} from "@/api/client";
+import {ResponseSuccessType} from "@/api/commonType";
 
 
 const defaultURI = "/asset-trading";
@@ -29,11 +30,11 @@ const assetTradingAPI = {
         const response = await client.get(`${defaultURI}/favorite-symbols`);
         return response.data;
     },
-    addFavoriteSymbolsRequest: async (data: AddFavoriteSymbolsRequest): Promise<getFavoriteSymbolsResponse> => {
+    addFavoriteSymbolsRequest: async (data: AddFavoriteSymbolsRequest): Promise<ResponseSuccessType> => {
         const response = await client.post(`${defaultURI}/favorite-symbols`, data);
         return response.data;
     },
-    deletedFavoriteSymbols: async (data: DeletedFavoriteSymbolsRequest): Promise<getFavoriteSymbolsResponse> => {
+    deletedFavoriteSymbols: async (data: DeletedFavoriteSymbolsRequest): Promise<ResponseSuccessType> => {
         const response = await client.delete(`${defaultURI}/favorite-symbols`, {data});
         return response.data;
     },

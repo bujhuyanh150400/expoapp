@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.8)',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 999999999,
+        zIndex: 9999_9999,
     },
     dotContainer: {
         marginTop: 16,

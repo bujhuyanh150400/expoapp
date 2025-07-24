@@ -35,17 +35,7 @@ const TransactionSection:FC<Props> = (props) => {
                     <Paragraph>{total?.waiting ?? 0}</Paragraph>
                 </View>
             </XStack>
-            <XStack alignItems={"center"} gap={"$2"}>
-                <Paragraph fontSize={12} fontWeight={(total?.close ?? 0) > 0 ? 700 : "normal"}>Đóng</Paragraph>
-                <View style={[
-                    DefaultStyle.badgeCircle,
-                    {backgroundColor: (total?.close ?? 0) > 0 ? DefaultColor.slate[300] : DefaultColor.slate[200]}
-                ]}>
-                    <Paragraph>{total?.close ?? 0}</Paragraph>
-                </View>
-            </XStack>
         </TouchableOpacity>
-
     )
 }
 

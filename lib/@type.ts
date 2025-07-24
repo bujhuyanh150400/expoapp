@@ -118,6 +118,6 @@ export enum _TransactionTriggerType {
 
 export enum _TransactionStatus {
     OPEN = 1,
-    WAITING = 2,
-    CLOSED = 3,
+    CLOSED = 2,
+    WAITING = 3,
 }
