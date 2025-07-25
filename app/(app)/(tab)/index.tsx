@@ -199,7 +199,6 @@ const AccountTabScreen = () => {
                     }
                 </Card.Footer>
             </Card>
-
             <TransactionTabs account={queryAccountActive.account} showTotal={true} />
         </LayoutScrollApp>
     )

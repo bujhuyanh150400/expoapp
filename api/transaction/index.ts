@@ -2,10 +2,10 @@ import {client} from "@/api/client";
 import {
     StoreTransactionRequestType,
     StoreTransactionResponseType,
-    TotalTransactionRequestType,
+    TotalTransactionRequestType, TransactionCancelRequestType,
     TransactionClosedRequestType,
     TransactionHistoryRequestType,
-    TransactionHistoryResponseType
+    TransactionHistoryResponseType, TransactionOpenNowRequestType
 } from "@/api/transaction/type";
 import {ResponseSuccessType} from "@/api/commonType";
 
@@ -31,5 +31,13 @@ const transactionAPI = {
         const response = await client.post(`${prefix}/close`, data);
         return response.data;
     },
+    openNow: async (data: TransactionOpenNowRequestType): Promise<ResponseSuccessType> => {
+        const response = await client.post(`${prefix}/open-now`, data);
+        return response.data;
+    },
+    cancel: async (data: TransactionCancelRequestType): Promise<ResponseSuccessType> => {
+        const response = await client.post(`${prefix}/cancel`, data);
+        return response.data;
+    }
 }
 export default transactionAPI

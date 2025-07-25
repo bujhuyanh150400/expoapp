@@ -59,3 +59,12 @@ export type TransactionClosedRequestType = {
     transaction_id: number;
     close_price: number;
 }
+
+export type TransactionOpenNowRequestType = {
+    transaction_id: number;
+    entry_price: number;
+}
+
+export type TransactionCancelRequestType = {
+    transaction_id: number;
+}

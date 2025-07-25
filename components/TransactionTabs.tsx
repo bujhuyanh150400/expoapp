@@ -7,7 +7,12 @@ import HorizontalTabBar from "@/components/HorizontalTabBar";
 import DefaultStyle from "@/components/ui/DefaultStyle";
 import {Alert, ScrollView, TouchableOpacity, View} from "react-native";
 import useNestedState from "@/lib/hooks/useNestedState";
-import {TransactionClosedRequestType, TransactionHistoryRequestType} from "@/api/transaction/type";
+import {
+    TransactionCancelRequestType,
+    TransactionClosedRequestType,
+    TransactionHistoryRequestType,
+    TransactionOpenNowRequestType
+} from "@/api/transaction/type";
 import useTransactionHistory from "@/lib/hooks/useTransactionHistory";
 import {useTransactionTotal} from "@/lib/hooks/useTransactionTotal";
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
@@ -65,91 +70,95 @@ const TransactionTabs: FC<Props> = (props) => {
 
     return (
         <>
-            <HorizontalTabBar<_TransactionStatus>
-                tabs={[
-                    {
-                        key: _TransactionStatus.OPEN,
-                        item: (isActive) => (
-                            <XStack gap={"$2"}>
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Mở
-                                </Paragraph>
-                                {(props.showTotal && hookTotal.total && hookTotal.total.open > 0) && (
-                                    <View style={[
-                                        DefaultStyle.badgeCircle,
-                                        {backgroundColor: isActive ? DefaultColor.slate[300] : DefaultColor.slate[200]}
-                                    ]}>
-                                        <Paragraph
-                                            fontSize={12}
-                                            fontWeight={isActive ? 700 : 500}
-                                            color={isActive ? DefaultColor.slate[700] : DefaultColor.slate[400]}
-                                        >
-                                            {hookTotal.total.open}
-                                        </Paragraph>
-                                    </View>
-                                )}
-                            </XStack>
-                        ),
-                    },
-                    {
-                        key: _TransactionStatus.WAITING,
-                        item: (isActive) => (
-                            <XStack gap={"$2"}>
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Chờ giao dịch
-                                </Paragraph>
-                                {(props.showTotal && hookTotal.total && hookTotal.total.waiting > 0) && (
-                                    <View style={[
-                                        DefaultStyle.badgeCircle,
-                                        {backgroundColor: isActive ? DefaultColor.slate[300] : DefaultColor.slate[200]}
-                                    ]}>
-                                        <Paragraph
-                                            fontSize={12}
-                                            fontWeight={isActive ? 700 : 500}
-                                            color={isActive ? DefaultColor.slate[700] : DefaultColor.slate[400]}
-                                        >
-                                            {hookTotal.total.waiting}
-                                        </Paragraph>
-                                    </View>
-                                )}
-                            </XStack>
-                        ),
-                    },
-                    {
-                        key: _TransactionStatus.CLOSED,
-                        item: (isActive) => (
-                            <XStack>
-                                <Paragraph
-                                    style={{
-                                        color: isActive ? DefaultColor.black : DefaultColor.slate[300],
-                                        fontWeight: isActive ? 700 : 'normal'
-                                    }}
-                                >
-                                    Đóng
-                                </Paragraph>
-                            </XStack>
-                        ),
-                    },
-                ]}
-                activeKey={filter.status}
-                onTabPress={(tab) => {
-                    setFilter({status: tab});
+            <View>
+                <HorizontalTabBar<_TransactionStatus>
+                    tabs={[
+                        {
+                            key: _TransactionStatus.OPEN,
+                            item: (isActive) => (
+                                <XStack gap={"$2"}>
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Mở
+                                    </Paragraph>
+                                    {(props.showTotal && hookTotal.total && hookTotal.total.open > 0) && (
+                                        <View style={[
+                                            DefaultStyle.badgeCircle,
+                                            {backgroundColor: isActive ? DefaultColor.slate[300] : DefaultColor.slate[200]}
+                                        ]}>
+                                            <Paragraph
+                                                fontSize={12}
+                                                fontWeight={isActive ? 700 : 500}
+                                                color={isActive ? DefaultColor.slate[700] : DefaultColor.slate[400]}
+                                            >
+                                                {hookTotal.total.open}
+                                            </Paragraph>
+                                        </View>
+                                    )}
+                                </XStack>
+                            ),
+                        },
+                        {
+                            key: _TransactionStatus.WAITING,
+                            item: (isActive) => (
+                                <XStack gap={"$2"}>
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Chờ giao dịch
+                                    </Paragraph>
+                                    {(props.showTotal && hookTotal.total && hookTotal.total.waiting > 0) && (
+                                        <View style={[
+                                            DefaultStyle.badgeCircle,
+                                            {backgroundColor: isActive ? DefaultColor.slate[300] : DefaultColor.slate[200]}
+                                        ]}>
+                                            <Paragraph
+                                                fontSize={12}
+                                                fontWeight={isActive ? 700 : 500}
+                                                color={isActive ? DefaultColor.slate[700] : DefaultColor.slate[400]}
+                                            >
+                                                {hookTotal.total.waiting}
+                                            </Paragraph>
+                                        </View>
+                                    )}
+                                </XStack>
+                            ),
+                        },
+                        {
+                            key: _TransactionStatus.CLOSED,
+                            item: (isActive) => (
+                                <XStack>
+                                    <Paragraph
+                                        style={{
+                                            color: isActive ? DefaultColor.black : DefaultColor.slate[300],
+                                            fontWeight: isActive ? 700 : 'normal'
+                                        }}
+                                    >
+                                        Đóng
+                                    </Paragraph>
+                                </XStack>
+                            ),
+                        },
+                    ]}
+                    activeKey={filter.status}
+                    onTabPress={(tab) => {
+                        setFilter({status: tab});
+                    }}
+                    styleContainer={{
 
-                }}
-                styleTab={{
-                    paddingVertical: 12,
-                }}
-            />
+                    }}
+                    styleTab={{
+                        paddingVertical: 12,
+                    }}
+                />
+            </View>
             <ContentWrapper
                 style={{
                     flex: 1,
@@ -308,16 +317,49 @@ const TransactionInfoSheet: FC<{
         if (!open) item.current = null;
     }, []);
 
-    const {mutate, isPending} = useMutation({
+    const mutationCloseTrans = useMutation({
         mutationFn: (data: TransactionClosedRequestType) => transactionAPI.closed(data),
         onSuccess: async (_) => {
             query.refetch();
+            onClosed(false);
             showMessage({
                 message: "Chốt giao dịch thành công",
                 type: 'success',
                 duration: 3000,
             });
+        },
+        onError: (error) => {
+            console.log(error)
+            useShowErrorHandler({error});
+        }
+    });
+
+    const mutationOpenNowTrans = useMutation({
+        mutationFn: (data: TransactionOpenNowRequestType) => transactionAPI.openNow(data),
+        onSuccess: async (_) => {
+            query.refetch();
             onClosed(false);
+            showMessage({
+                message: "Mở giao dịch thành công",
+                type: 'success',
+                duration: 3000,
+            });
+        },
+        onError: (error) => {
+            useShowErrorHandler({error});
+        }
+    });
+
+    const mutationCancelTrans = useMutation({
+        mutationFn: (data: TransactionCancelRequestType) => transactionAPI.cancel(data),
+        onSuccess: async (_) => {
+            query.refetch();
+            onClosed(false);
+            showMessage({
+                message: "Xóa giao dịch thành công",
+                type: 'success',
+                duration: 3000,
+            });
         },
         onError: (error) => {
             useShowErrorHandler({error});
@@ -332,7 +374,7 @@ const TransactionInfoSheet: FC<{
                     text: 'Đóng giao dịch',
                     onPress: () => {
                         if (data.id) {
-                            mutate({
+                            mutationCloseTrans.mutate({
                                 transaction_id: data.id,
                                 close_price: data.realtime_price || 0
                             });
@@ -340,7 +382,42 @@ const TransactionInfoSheet: FC<{
                     }
                 }
             ]);
-    }, [mutate]);
+    }, []);
+
+    const onOpenNowTransaction = useCallback((data: CalculateTransactionPrices) => {
+        Alert.alert('Thực hiện mở giao dịch', 'Giao dịch đang chờ để chốt giá mong muốn, bạn muốn mở luôn giao dịch ?',
+            [
+                {text: 'Hủy', style: 'cancel'},
+                {
+                    text: 'Mở giao dịch',
+                    onPress: () => {
+                        if (data.id) {
+                            mutationOpenNowTrans.mutate({
+                                transaction_id: data.id,
+                                entry_price: data.realtime_price || 0
+                            });
+                        }
+                    }
+                }
+            ]);
+    }, []);
+
+    const onCancelTransaction = useCallback((data: CalculateTransactionPrices) => {
+        Alert.alert('Xóa giao dịch', 'Giao dịch đang chờ để chốt giá mong muốn, bạn không muốn thực hiện giao dịch này nữa ?',
+            [
+                {text: 'Hủy', style: 'cancel'},
+                {
+                    text: 'Xóa giao dịch',
+                    onPress: () => {
+                        if (data.id) {
+                            mutationCancelTrans.mutate({
+                                transaction_id: data.id,
+                            });
+                        }
+                    }
+                }
+            ]);
+    }, []);
 
     const data = hookCalculate.data.find(tx => tx.id === item.current);
 
@@ -455,15 +532,40 @@ const TransactionInfoSheet: FC<{
                         {data.status === _TransactionStatus.OPEN && (
                             <Button
                                 flex={1}
-                                disabled={isPending}
+                                disabled={mutationCloseTrans.isPending}
                                 marginTop={"$2"}
                                 onPress={() => {
                                     onCloseTransaction(data);
                                 }}
                             >
-                                {isPending ? 'Đang xử lý...' : 'Đóng giao dịch'}
+                                {mutationCloseTrans.isPending ? 'Đang xử lý...' : 'Đóng giao dịch'}
                             </Button>
                         )}
+                        {data.status === _TransactionStatus.WAITING &&
+                            <XStack alignItems={"center"} gap={"$2"}>
+                                <Button
+                                    flex={1}
+                                    disabled={mutationOpenNowTrans.isPending || mutationCancelTrans.isPending}
+                                    marginTop={"$2"}
+                                    onPress={() => {
+                                        onOpenNowTransaction(data);
+                                    }}
+                                >
+                                    {mutationOpenNowTrans.isPending || mutationCancelTrans.isPending ? 'Đang xử lý...' : 'Mở giao dịch'}
+                                </Button>
+                                <Button
+                                    flex={1}
+                                    theme={"red"}
+                                    disabled={mutationOpenNowTrans.isPending || mutationCancelTrans.isPending}
+                                    marginTop={"$2"}
+                                    onPress={() => {
+                                        onCancelTransaction(data);
+                                    }}
+                                >
+                                    {mutationOpenNowTrans.isPending || mutationCancelTrans.isPending ? 'Đang xử lý...' : 'Xóa'}
+                                </Button>
+                            </XStack>
+                        }
                     </YStack>
                 )}
             </Sheet.Frame>

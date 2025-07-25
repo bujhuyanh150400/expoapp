@@ -26,7 +26,7 @@ const useCalculateTransactionPrices = (transaction: Transaction[], enable: boole
     return useMemo(() => {
         return transaction.reduce((acc, item) => {
             const symbolPrice = prices[item.symbol.symbol];
-            if (symbolPrice) {
+            if (symbolPrice && (item.status === _TransactionStatus.OPEN || item.status === _TransactionStatus.WAITING)) {
                 const entryVolumePrice = item.entry_price * item.volume;
                 const realtimeVolumePrice = symbolPrice.price * item.volume;
                 if (item.status === _TransactionStatus.OPEN){
@@ -46,7 +46,6 @@ const useCalculateTransactionPrices = (transaction: Transaction[], enable: boole
                         realtime_price: symbolPrice.price,
                     });
                 }
-
             }else if (item.status === _TransactionStatus.CLOSED && item.close_price) {
                 const entryVolumePrice = item.entry_price * item.volume;
                 const closedVolumePrice = item.close_price * item.volume;
