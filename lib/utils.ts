@@ -57,7 +57,7 @@ export const getBucketTime = (timestamp: number, timeframe: _Timeframe): number 
 
 export const calculateBidAskSpread = (price: number, spread: string) => {
     const floatSpread = parseFloat(spread);
-    if (floatSpread) {
+    if (floatSpread && price) {
         const bid = +(price - floatSpread / 2).toFixed(5); // SELL
         const ask = +(price + floatSpread / 2).toFixed(5); // BUY
         return {bid, ask, spread};

@@ -24,7 +24,7 @@ import {useShowErrorHandler} from "@/lib/hooks/useApiErrorHandler";
 import {showMessage} from "react-native-flash-message";
 
 
-type Props = {
+type Props = { 
     account: Account | null,
     showTotal?: boolean,
     allowScroll?: boolean,

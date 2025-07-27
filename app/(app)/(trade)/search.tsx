@@ -18,6 +18,7 @@ import useAppStore from "@/lib/store/appStore";
 import {RefreshControl} from "react-native-gesture-handler";
 import DefaultColor from "@/components/ui/DefaultColor";
 import SymbolAssetIcons from "@/components/SymbolAssetIcons";
+import {router} from "expo-router";
 
 const useInfiniteSearchSymbol = (queryParams: SearchSymbolRequest = {}) => {
     return useInfiniteQuery({
@@ -43,8 +44,13 @@ export default function SearchScreen() {
             style={{flex: 1}}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <SearchSymbolList onPressItem={(_) => {
-                    console.log('test')
+                <SearchSymbolList onPressItem={(item) => {
+                    router.push({
+                        pathname: '/(app)/(trade)/trading',
+                        params: {
+                            symbol: item.symbol
+                        }
+                    })
                 }}/>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>

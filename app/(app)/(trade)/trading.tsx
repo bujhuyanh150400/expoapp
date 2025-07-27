@@ -90,7 +90,7 @@ export default function TradingScreen() {
         bid,
         ask,
         spread
-    } = calculateBidAskSpread(priceRealtime.price, queryItemSymbol.data ? queryItemSymbol.data.spread : "");
+    } = calculateBidAskSpread(priceRealtime?.price, queryItemSymbol.data ? queryItemSymbol.data.spread : "");
 
     useEffect(() => {
         if (queryItemSymbol.isError) {
