@@ -113,7 +113,7 @@ const AccountTabScreen = () => {
                                 </Link>
 
                             </XStack>
-                            <H4 fontWeight="bold">{Number(queryAccountActive.accountBalance).toLocaleString('en-US')} {activeAccount.currency.currency}</H4>
+                            <H4 fontWeight="bold">0 {activeAccount.currency.currency}</H4>
                         </>
                     )}
                     {queryAccountActive.isSuccess && !activeAccount && (

@@ -12,7 +12,7 @@ export default function AuthLayout() {
     const router = useRouter();
     useEffect(() => {
         if (status === _AuthStatus.AUTHORIZED) {
-            router.replace('/(app)/(account)/account');
+            router.replace('/(app)/(tab)');
         }
     }, [status]);
     return (

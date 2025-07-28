@@ -33,7 +33,7 @@ export default function AddStepThreeScreen() {
     } = useForm<FormAddAccountStepThree>({
         resolver: yupResolver(
             yup.object({
-                name: yup.string().nullable().optional(),
+                name: yup.string().required("Tên là bắt buộc"),
                 lever_id: yup.number().required('Tỷ lệ đòn bẩy là bắt buộc').typeError('Tỷ lệ đòn bẩy là bắt buộc'),
                 currency_id: yup.number().required('Loại tiền tệ là bắt buộc').typeError('Loại tiền tệ là bắt buộc'),
             })
@@ -68,7 +68,6 @@ export default function AddStepThreeScreen() {
             value: lever.id.toString(),
         })) || [];
     }, [leversQuery.data]);
-    // @ts-ignore
     return (
         <>
             <FullScreenLoading loading={currenciesQuery.isLoading && leversQuery.isLoading}/>

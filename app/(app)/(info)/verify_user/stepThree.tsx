@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     },
 });
 const CameraFrontView: FC<{
-    cameraRef: RefObject<CameraView>;
+    cameraRef: RefObject<CameraView | null>;
     setImage: () => void;
     title: string;
 }> = (props) => {

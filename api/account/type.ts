@@ -3,7 +3,7 @@ import {AccountType, CurrencyType, Lever} from "@/api/common/type";
 
 export type CreateAccountRequest = {
     user_id: number;
-    name: string | null | undefined;// tên tài khoản
+    name: string;// tên tài khoản
     password: string; // mật khẩu tài khoản
     currency_id: number; // loai tiền tệ
     lever_id: number; // tỷ lệ đòn bẩy
